@@ -11,28 +11,30 @@ This library provides utilities to auto-unsubscribe [from a RxJS stream subscrip
  
 ## Using @mindspace/rxjs-utils
 
-The `untilViewDestroyed()` RxJS operator is the most commonly used feature. Review the code sample below on how to auto-unsubscribe an Angular View component after `ngOnDestroy()`.
+The `untilViewDestroyed()` RxJS operator is the most commonly used feature. Review the code sample below on how to auto-unsubscribe an Angular View component after `ngOnDestroy()` or when the element is removed from its DOM container.
 
 ```ts
 import {untilViewDestroyed} from '@mindspace/rxjs-utils';
    
 @Component({})   
-export class TicketDetails {  
+export class TicketDetails implements OnInit, OnDestroy {  
  tickets: string[];
  search: FormControl;  
 
- constructor(private ticketService: TicketService, private elRef: ElementRef){}
+ constructor(private ticketService: TicketService){}
 
  ngOnInit() {   
    const findTickets = (criteria:string) => this.ticketService.findAll(criteria);
   
    this.search.valueChanges.pipe(  
-     untilViewDestroyed(elRef),  
+     untilViewDestroyed(this),  
      switchMap(findTickets), 
      map(ticket=> ticket.name)  
    )   
    .subscribe( tickets => this.tickets = tickets ); 
  } 
+
+ ngOnDestroy() { }
  
 }
 ```
@@ -71,7 +73,7 @@ Consider the following `DocumentViewerComponent` which uses a service to load a 
   `,
   changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class DocumentViewerComponent implements OnInit {  
+export class DocumentViewerComponent implements OnInit, OnDestroy {  
   @Input() fullName: string;
   documents: Documents[];
 
@@ -86,6 +88,8 @@ export class DocumentViewerComponent implements OnInit {
       this.cd.markForCheck();
     });
   }
+    
+  ngOnDestroy() { }
 }
 ```
 

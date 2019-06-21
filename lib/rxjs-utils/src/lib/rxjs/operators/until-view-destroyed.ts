@@ -11,27 +11,32 @@
  *  import {untilViewDestroyed} from '@mindspace/rxjs-utils'
  *
  *  @Component({})
- *  export class TicketDetails {
+ *  export class TicketDetails implements OnInit, OnDestroy {
  *    search: FormControl;
  *
- *    constructor(private ticketService: TicketService, private elRef: ElementRef){}
+ *    constructor(private ticketService: TicketService){}
  *    ngOnInit() {
  *      this.search.valueChanges.pipe(
- *        untilViewDestroyed(elRef),
+ *        untilViewDestroyed(this),
  *        switchMap(()=> this.ticketService.loadAll()),
  *        map(ticket=> ticket.name)
  *      )
  *      .subscribe( tickets => this.tickets = tickets );
  *    }
  *
+ *    ngOnDestroy() { };
  *  }
  *
  *  Utility method to hide complexity of bridging a view component instance to a manual observable subs
  */
 import { ElementRef } from '@angular/core';
-
-import { Observable, ReplaySubject } from 'rxjs';
+import { Observable, Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
+
+export interface NgViewComponent {
+  ngOnInit?: () => void;
+  ngOnDestroy ?: () => void;
+}
 
 /**
  *  Wait until the DOM element has been removed (destroyed) and then
@@ -40,8 +45,9 @@ import { takeUntil } from 'rxjs/operators';
  *  If the `pipe(untilViewDestroyed(element.nativeEl))` is used in the constructor
  *  we must delay until the new view has been inserted into the DOM.
  */
-export function untilViewDestroyed<T>(element: ElementRef): (source: Observable<T>) => Observable<T> {
-  const destroyed$ = (element && element.nativeElement) ? watchElementDestroyed(element.nativeElement) : null;
+export function untilViewDestroyed<T>(element: ElementRef<HTMLElement> | NgViewComponent): (source: Observable<T>) => Observable<T> {
+  const elRef = element['nativeElement'] as HTMLElement;
+  const destroyed$ = (elRef) ? watchElementDestroyed(elRef) : watchViewDestroyed(element as NgViewComponent);
   return (source$: Observable<T>) => destroyed$ ? source$.pipe(takeUntil(destroyed$)) : source$;
 }
 
@@ -49,6 +55,10 @@ export function untilViewDestroyed<T>(element: ElementRef): (source: Observable<
  * Unique hashkey
  */
 const destroy$ = 'destroy$';
+/**
+ * Lifecycle method for Angular Components
+ */
+const ON_DESTROY = 'ngOnDestroy';
 
 /**
  * Use MutationObserver to watch for Element being removed from the DOM: destroyed
@@ -59,7 +69,7 @@ export function watchElementDestroyed(nativeEl: Element, delay: number = 20): Ob
 
   if (!nativeEl[destroy$] && parentNode ) {
     if (typeof MutationObserver !== 'undefined') {
-      const stop$ = new ReplaySubject<boolean>();
+      const stop$ = new Subject<boolean>();
       const hasBeenRemoved = isElementRemoved(nativeEl);
 
       nativeEl[destroy$] = stop$.asObservable();
@@ -82,8 +92,48 @@ export function watchElementDestroyed(nativeEl: Element, delay: number = 20): Ob
   return nativeEl[destroy$];
 }
 
+/**
+ * Monkey-Patch the ngOnDestroy lifecycle hook.
+ *
+ * Note: to hook into the ngOnDestroy lifecycle method of an Angular view component
+ * the `ngOnDestroy()` method must be defined (even if empty)
+ */
+export function watchViewDestroyed(view:NgViewComponent): Observable<boolean> {
+  if (!isPatched(view)) {
+    const origOnDestroy = view[ON_DESTROY];
+    const isFunction = (value) => (typeof value === 'function');
+
+    if (isFunction(origOnDestroy) === false) {
+      throw new Error(
+        `When using untilViewDestroyed(), ${view.constructor.name}::${ON_DESTROY} is required!`
+      );
+    }
+
+    const stop$ = new Subject<boolean>();
+    view[ON_DESTROY] = () => {
+      // Monkey-patch
+      stop$.next(true);
+      stop$.complete();
+
+      origOnDestroy.call(view);
+      view[destroy$] = undefined;
+    };
+
+    view[destroy$] = stop$.asObservable();
+  }
+  return view[destroy$];
+}
+
 export function isElementRemoved(nativeEl) {
   return (record: MutationRecord) => {
     return Array.from(record.removedNodes).indexOf(nativeEl) > -1;
   };
 }
+
+/**
+ * Has this view component instance already been monkey-patched ?
+ */
+export function isPatched(cmpInstance: NgViewComponent): boolean {
+  return !!cmpInstance[destroy$];
+}
+
