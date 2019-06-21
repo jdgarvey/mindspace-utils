@@ -4,17 +4,19 @@
 
 This library provides utilities to auto-unsubscribe [from a RxJS stream subscription] when a view component is destroyed. While originally written for Angular developers, some of the utilities can be used with **any** JS + RxJS implementation.
 
-* `untilViewDestroyed(<ElementRef>)`: RxJS operator to auto-unsubscribe when the Angular view instance is destroyed.
+* `untilViewDestroyed(<ElementRef> | <Component>)`: RxJS operator to auto-unsubscribe when the Angular view instance is destroyed.
 * `autoUnsubscribe(<Subscription>,<HtmlElement>)`: clear the specified subscription when the target DOM element is removed from its parent DOM container.
-* `watchwatchElementDestroyed(<HtmlElement>)`: watch target DOM element and emit true when destroyed.
+* `watchElementDestroyed(<HtmlElement>)`: watch target DOM element and emit true when destroyed.
+* `watchViewDestroyed(<Component>)`: watch target Angular Component ngOnDestroy() is called and will emit true.
+
  
  
-## Using @mindspace/rxjs-utils
+## Using @mindspace-io/rxjs-utils
 
 The `untilViewDestroyed()` RxJS operator is the most commonly used feature. Review the code sample below on how to auto-unsubscribe an Angular View component after `ngOnDestroy()` or when the element is removed from its DOM container.
 
 ```ts
-import {untilViewDestroyed} from '@mindspace/rxjs-utils';
+import {untilViewDestroyed} from '@mindspace-io/rxjs-utils';
    
 @Component({})   
 export class TicketDetails implements OnInit, OnDestroy {  
@@ -57,11 +59,11 @@ Nevertheless, developers will encounter other scenarios that require manual subs
 
 <br/>
 
-## Classic Approaches (without rxjs-utils)
-
-### Angular RxJS Issue 
+### Typical Angular RxJS Subscription Leak 
 
 Consider the following `DocumentViewerComponent` which uses a service to load a list of documents`. `availableDocuments$` is a RxJS stream which will asynchronously emit/deliver the document list WHENEVER it is available or changes. 
+
+This implementation has a memory leak because the subscription is long-lived and is not managed!
 
 ```ts
 @Component({
@@ -93,9 +95,15 @@ export class DocumentViewerComponent implements OnInit, OnDestroy {
 }
 ```
 
-This implementation has a memory leak because the subscription is long-lived and is not managed!
 
-### Angular RxJS Solution using `ngOnDestroy()`
+<br/>
+ 
+----
+
+<br/>
+
+
+### Bad Solution #1: Using `ngOnDestroy()`
 
 Here is the typical implementation [using `ngOnDestroy()` + `takeUntil()`] to manage such RxJS subscriptions:
 
@@ -125,7 +133,7 @@ export class DocumentViewerComponent implements OnInit {
 }
 ```
 
-Here is another approach [using a notification Subject] that is often used in-the-wild:
+### Bad Solution #2: Using a notification Subject
  
 ```ts
 @Component({...})
