@@ -1,4 +1,6 @@
-## Custom `useObservable` Hook
+## Hook Utils (for React)
+
+### Custom `useObservable` Hook
 
 React view components use state and props to render JSX (templates). In scenarios where the state values will be updated asynchronously based on emissions from Observable streams, the required code complexity becomes problematic.
 

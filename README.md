@@ -1,12 +1,30 @@
 # Mindspace Utilities
 
-## Purpose
+This library provides TypeScript utilities for both Angular and React developers. Click the links below to view the detailed README(s) for each technology item.
 
-This library provides utilities to for both Angular and React applications:
+> To easily use this library, just use **`npm install @mindspace-io/utils`**
 
-* Angular: Auto-unsubscribe Observables in View Components using [`untilViewDestroyed()`](./lib/rxj-utils/src/lib/rxjs/README.md)
-* React: Dependency Injection [Angular Style] using [`Injector`](./lib/rxj-utils/src/lib/di/README.md)
-* React: 'Async pipe'-like functionality with [`useObservable()`](./lib/rxj-utils/src/lib/hooks/README.md)
-* Misc: `switchCase` functional API useful to condense switch statements
+</br>
+<br/>
+
+
+![image](https://user-images.githubusercontent.com/210413/68954891-8404a680-078a-11ea-826c-879faae54eed.png)
+
+* [**`untilViewDestroyed()`** to auto-unsubscribe Observables in View Components](./lib/utils/src/lib/rxjs/README.md)
+
+<br/>
+<br/>
+
+![image](https://user-images.githubusercontent.com/210413/68954901-8961f100-078a-11ea-8141-eac38ab21dab.png)
+
+* [**`makeInjector()`** for powerful, angular-like dependency injection](./lib/utils/src/lib/di/README.md)
+* [**`useObservable()`** for 'Async pipe'-like functionality](./lib/utils/src/lib/hooks/README.md)
+
+<br/>
+<br/>
+
+![image](https://user-images.githubusercontent.com/210413/68954909-8cf57800-078a-11ea-90db-df58987a9790.png)
+
+* [**`switchCase()`** for functional API used to condense switch statements](./lib/utils/src/lib/misc/README.md)
   * [Typescript Playground](http://bit.ly/2NPQob6)
 
