@@ -1,17 +1,29 @@
-import { any } from 'prop-types';
+import { Type } from './type';
+import { DependencyInjector } from './injector.interfaces';
 
-export interface DependencyInjector {
-  get: (token: any) => any;
-  instanceOf: (token: any) => any;
-  addProviders: (registry: Provider[]) => void;
+export interface TypeProvider extends Type<any> {
+  deps?: any[];
 }
-
-export type Dep = any;
 
 export interface Provider {
   provide: any;
   useClass?: any;
   useValue?: any;
   useFactory?: () => any;
-  deps?: Dep[];
+  deps?: any[];
+}
+
+
+export interface DependencyInjector {
+  get: (token: any) => any;
+  instanceOf: (token: any) => any;
+  addProviders: (registry: Provider[]) => DependencyInjector;
+}
+
+export function makeClassProvider(token:any): Provider {
+  return {
+    provide: token,
+    useClass: token,
+    deps: [...token['deps']],
+  };
 }

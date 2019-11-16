@@ -1,8 +1,6 @@
-# Mindspace RxJS Utilities
+## Angular RxJS Utils
 
-## Purpose
-
-This library provides utilities to auto-unsubscribe [from a RxJS stream subscription] when a view component is destroyed. While originally written for Angular developers, some of the utilities can be used with **any** JS + RxJS implementation.
+This part of the library provides Angular utilities to auto-unsubscribe [from a RxJS stream subscription] when a view component is destroyed. While originally written for Angular developers, some of the utilities can be used with **any** JS + RxJS implementation.
 
 * `untilViewDestroyed(<ElementRef> | <Component>)`: RxJS operator to auto-unsubscribe when the Angular view instance is destroyed.
 * `autoUnsubscribe(<Subscription>,<HtmlElement>)`: clear the specified subscription when the target DOM element is removed from its parent DOM container.

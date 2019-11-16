@@ -14,24 +14,27 @@
     "copy": "cp README.md dist/lib/utils",
     "publish": "npm publish ./dist/lib/utils"
   },
+  "dependencies": {
+    "rxjs": "^6.5.2"
+  },
   "devDependencies": {
+    "@angular/compiler": "^8.2.14",
+    "@angular/compiler-cli": "^8.2.14",
+    "@angular/core": "^8.2.14",
+    "@nrwl/jest": "^8.7.1",
     "@types/jest": "^24.0.13",
     "@types/node": "^12.0.2",
-    "jest": "^24.8.0",
+    "jest": "^24.9.0",
     "jest-preset-angular": "^7.1.1",
-    "ng-packagr": "^5.2.0",
-    "rxjs": "^6.5.2",
+    "ng-packagr": "5.7.1",
+    "react": "^16.12.0",
     "ts-jest": "^24.0.2",
-    "typescript": "3.2.4"
-  },
-  "dependencies": {
-    "@mindspace/utils": "file:dist/lib/utils",
-    "tsickle": "^0.35.0"
+    "tsickle": "^0.37.1",
+    "tslib": "^1.10.0",
+    "typescript": "3.5.3"
   },
   "peerDependencies": {
-    "@angular/compiler": "^7.2.15",
-    "@angular/compiler-cli": "^7.2.15",
-    "@angular/core": "^7.2.15",
+    "@angular/core": "^8.2.14",
     "react": "^16.11.0",
     "react-dom": "^16.11.0"
   }

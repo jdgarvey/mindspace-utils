@@ -1,12 +1,20 @@
-import { Provider } from './injector.interfaces';
 import { DependencyInjector } from './injector.interfaces';
+import { Provider, TypeProvider, makeClassProvider } from './injector.interfaces';
 
 /**
  * Utility function used to easily create 1..n injectors; each with thier
  * own singletons and provider registry.
+ * 
+ * NOTE: If only a class is registered (instead of a Provider), convert to it 
+ * for normalized usages
  */
-export function makeInjector(registry: Provider[]): DependencyInjector {
-  return new Injector(registry);
+export function makeInjector(registry: (Provider | TypeProvider)[]): DependencyInjector {
+  const normalized = registry.map(it => {
+    const isProvider = !!(it as Provider).provide;
+    return isProvider ? it : makeClassProvider(it);
+  }) as Provider[];
+
+  return new Injector(normalized);
 }
 
 /**
@@ -29,24 +37,40 @@ class Injector implements DependencyInjector {
   }
 
   /**
-   * Create an instance of the token based on the Provider configuration
+   * Create an unshared, non-cached instance of the token;
+   * based on the Provider configuration
    */
   instanceOf(token: any): any {
-    const makeWithClazz = (clazz: any) => (clazz ? new clazz(...deps) : null);
-    const makeWithFactory = (fn: () => any) => (fn ? fn.call(null, deps) : null);
     const provider = this.findLastRegistration(token, this.providers);
     const deps = provider && provider.deps ? provider.deps.map(it => this.instanceOf(it)) : [];
+    const makeWithClazz = (clazz: any) => (clazz ? new clazz(...deps) : null);
+    const makeWithFactory = (fn: () => any) => (fn ? fn.call(null, deps) : null);
 
-    return provider && (provider.useValue || makeWithClazz(provider.useClass) || makeWithFactory(provider.useFactory));
+    return provider && ( provider.useValue
+      || makeWithClazz(provider.useClass) 
+      || makeWithFactory(provider.useFactory)
+      || makeWithClazz(provider.provide)  // fallback uses the token as a `class`
+    );
   }
 
   /**
    * Dynamically allow Provider registrations and singleton overwrites
-   * @param registry
+   * @param registry Configuration set of Provider(s)
+   * @param replace Replace existing provider
    */
-  addProviders(registry: Provider[]) {
-    this.providers = this.providers.concat(registry);
+  addProviders(registry: Provider[], replace = true): DependencyInjector {
+    const cache = replace
+      ? this.providers.reduce((list, current) => {
+          const isSameToken = newItem => newItem.provide === current.provide;
+          const notFound = registry.filter(isSameToken).length < 1;
+          return notFound ? list.concat([current]) : list;
+        }, [])
+      : this.providers;
+
+    this.providers = cache.concat(registry);
     registry.map(it => this.singletons.delete(it.provide));
+
+    return this;
   }
 
   // *************************************************
