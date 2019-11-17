@@ -2,18 +2,33 @@
 
 ### `useInjectorHook()`
 
-When using this libraries Dependency Injection features, developers must first configure and instantion a custom injector
+##### Solution #1
+
+When using this library's [Dependency Injection](../di/README.md) features, developers must first configure and instantiate a custom injector
 
 ![image](https://cdn-images-1.medium.com/max/1600/0*Eh3cUl1ZGH1JNo2J.png)
 
-which then requires the code use `injector.get(<token>)` in the application code:
+which then requires the code use `injector.get(<token>)` in the application code
 
 ![image](https://cdn-images-1.medium.com/max/1600/0*8RxFA4TCQT7YnNEq.png)
 
-Using the `useInjectorHook()` feature, looks with custom DI is trivial:
+> This works... but we can make it better!
+
+<br/>
+
+##### Solution #2
+
+Using the `useInjectorHook()` feature, performing a DI singleton lookups is trivial:
 
 ![image](https://cdn-images-1.medium.com/max/1600/1*S07nQz971o_9_xgP89p_yg.png)
 
+Then - in your View layers - use your custom injector hook for super simply DI lookups
+
+![image](https://cdn-images-1.medium.com/max/1600/1*eTzfEeMKVB-kU3qLTsjUKg.png)
+
+<br/>
+
+----
 
 ### `useObservable` Hook
 
