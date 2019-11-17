@@ -1,6 +1,6 @@
 import { DependencyInjector, InjectionToken } from '../di';
 
-export type HookTuple<V, I> = [V, I]; // Array of value + injector
+export type HookTuple<V, I extends DependencyInjector> = [V, I]; // Array of value + injector
 export type Token<T> = string | InjectionToken<string> | (new (...args: any[]) => T);
 
 /**
@@ -11,8 +11,8 @@ export type Token<T> = string | InjectionToken<string> | (new (...args: any[]) =
  * What is returned is a tuple of the singleton instance and the injector.
  * 
  * @code
- *   export const injector: DependencyInjector = makeInjector([
- *     { provide: API_KEY, useValue: '873771d7760b846d51d025ac5804ab' },
+ *   const injector: DependencyInjector = makeInjector([
+ *     { provide: API_KEY, useValue: '873771d7760b846d51d5ac5804ab' },
  *     { provide: API_ENDPOINT, useValue: 'https://uifaces.co/api?limit=25' },
  *     { provide: ContactsService, useClass: ContactsService, deps: [API_ENDPOINT, API_KEY] }
  *   ]);
@@ -21,8 +21,8 @@ export type Token<T> = string | InjectionToken<string> | (new (...args: any[]) =
  *     return useInjectorHook(token, injector);
  *   }
  * 
- * @param injector is a custom DependencyInjector
- * @param token Look using string, Class, or InjectionToken
+ * @param injector Custom DependencyInjector
+ * @param token Token type of string, Class, or InjectionToken
  */
 export function useInjectorHook<T extends Token<T>>(
   token: T,

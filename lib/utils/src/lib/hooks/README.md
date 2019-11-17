@@ -12,7 +12,7 @@ which then requires the code use `injector.get(<token>)` in the application code
 
 Using the `useInjectorHook()` feature, looks with custom DI is trivial:
 
-![image](blob:https://medium.com/2fb4bd51-11a9-4087-b974-e413decb0a95)
+![image](https://cdn-images-1.medium.com/max/1600/1*S07nQz971o_9_xgP89p_yg.png)
 
 
 ### `useObservable` Hook
