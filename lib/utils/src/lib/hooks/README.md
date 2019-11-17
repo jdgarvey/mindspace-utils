@@ -1,6 +1,21 @@
-## React CustomHook Utils
+## React Custom Hooks
 
-### Custom `useObservable` Hook
+### `useInjectorHook()`
+
+When using this libraries Dependency Injection features, developers must first configure and instantion a custom injector
+
+![image](https://cdn-images-1.medium.com/max/1600/0*Eh3cUl1ZGH1JNo2J.png)
+
+which then requires the code use `injector.get(<token>)` in the application code:
+
+![image](https://cdn-images-1.medium.com/max/1600/0*8RxFA4TCQT7YnNEq.png)
+
+Using the `useInjectorHook()` feature, looks with custom DI is trivial:
+
+![image](blob:https://medium.com/2fb4bd51-11a9-4087-b974-e413decb0a95)
+
+
+### `useObservable` Hook
 
 React view components use state and props to render JSX (templates). In scenarios where the state values will be updated asynchronously based on emissions from Observable streams, the required code complexity becomes problematic.
 

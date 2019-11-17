@@ -15,6 +15,7 @@ This library provides TypeScript utilities for both Angular and React developers
 
 ![image](https://user-images.githubusercontent.com/210413/68954901-8961f100-078a-11ea-8141-eac38ab21dab.png)
 
+* [**`useInjectorHook()`** for 'Async pipe'-like functionality](./lib/utils/src/lib/hooks/README.md)
 * [**`useObservable()`** for 'Async pipe'-like functionality](./lib/utils/src/lib/hooks/README.md)
 
 <br/>
