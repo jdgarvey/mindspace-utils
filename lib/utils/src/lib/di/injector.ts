@@ -1,4 +1,4 @@
-import { DependencyInjector, UndoChange } from './injector.interfaces';
+import { DependencyInjector, UndoChanges } from './injector.interfaces';
 import { Provider, TypeProvider, makeClassProvider } from './injector.interfaces';
 
 /**
@@ -60,7 +60,7 @@ class Injector implements DependencyInjector {
    * @param registry Configuration set of Provider(s)
    * @param replace Replace existing provider
    */
-  addProviders(registry: Provider[], replace = true): UndoChange {
+  addProviders(registry: Provider[], replace = true): UndoChanges {
     const origProviders = [...this.providers];    
     const cache = replace
       ? this.providers.reduce((list, current) => {

@@ -3,8 +3,6 @@
  */
 
 export * from './lib/di';
-export * from './lib/hooks/useObservable';
-export * from './lib/misc/switchCase';
-
-export { autoUnsubscribe  } from './lib/rxjs/auto-unsubscribe';
-export { untilViewDestroyed, watchElementDestroyed } from './lib/rxjs/operators/until-view-destroyed';
+export * from './lib/hooks';
+export * from './lib/rxjs';
+export * from './lib/misc';

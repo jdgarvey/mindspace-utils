@@ -18,7 +18,7 @@ export type UndoChanges = () => void;
 export interface DependencyInjector {
   get: (token: any) => any;
   instanceOf: (token: any) => any;
-  addProviders: (registry: Provider[]) => UndoChange;
+  addProviders: (registry: Provider[]) => UndoChanges;
 }
 
 export function makeClassProvider(token:any): Provider {
