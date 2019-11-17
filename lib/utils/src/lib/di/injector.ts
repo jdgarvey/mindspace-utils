@@ -1,4 +1,4 @@
-import { DependencyInjector } from './injector.interfaces';
+import { DependencyInjector, UndoChange } from './injector.interfaces';
 import { Provider, TypeProvider, makeClassProvider } from './injector.interfaces';
 
 /**
@@ -55,10 +55,13 @@ class Injector implements DependencyInjector {
 
   /**
    * Dynamically allow Provider registrations and singleton overwrites
+   * Provide an 'restore' function to optionally restore original providers (if replaced),
+   * 
    * @param registry Configuration set of Provider(s)
    * @param replace Replace existing provider
    */
-  addProviders(registry: Provider[], replace = true): DependencyInjector {
+  addProviders(registry: Provider[], replace = true): UndoChange {
+    const origProviders = [...this.providers];    
     const cache = replace
       ? this.providers.reduce((list, current) => {
           const isSameToken = newItem => newItem.provide === current.provide;
@@ -70,7 +73,7 @@ class Injector implements DependencyInjector {
     this.providers = cache.concat(registry);
     registry.map(it => this.singletons.delete(it.provide));
 
-    return this;
+    return () => this.addProviders(origProviders);
   }
 
   // *************************************************

@@ -13,11 +13,12 @@ export interface Provider {
   deps?: any[];
 }
 
+export type UndoChanges = () => void;
 
 export interface DependencyInjector {
   get: (token: any) => any;
   instanceOf: (token: any) => any;
-  addProviders: (registry: Provider[]) => DependencyInjector;
+  addProviders: (registry: Provider[]) => UndoChange;
 }
 
 export function makeClassProvider(token:any): Provider {
