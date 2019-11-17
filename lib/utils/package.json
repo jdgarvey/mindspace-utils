@@ -1,6 +1,6 @@
 {
   "name": "@mindspace-io/utils",
-  "version": "1.0.4",
+  "version": "1.0.10",
   "publisher": "Thomas Burleson",
   "private": false,
   "license": "MIT",
@@ -9,9 +9,6 @@
     "url": "https://github.com/ThomasBurleson/mindspace-utils.git"
   },
   "peerDependencies": {
-    "rxjs": "6.5.0",
-    "@angular/core": "^8.0.0",
-    "react": "^16.11.0",
-    "react-dom": "^16.11.0"    
+    "rxjs": "6.5.0"
   }
 }
