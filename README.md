@@ -1,6 +1,6 @@
 # Mindspace-io for React
 
-[![npm version](https://badge.fury.io/js/%40mindspace-io%2Futils.svg)](https://badge.fury.io/js/%40mindspace-io%2Futils)
+[![GitHub version](https://badge.fury.io/gh/ThomasBurleson%2Fmindspace-utils.svg)](https://badge.fury.io/gh/ThomasBurleson%2Fmindspace-utils)
 
 ## Purpose
 
@@ -8,11 +8,17 @@ This library provides TypeScript utilities for both Angular and React developers
 
 <br>
 
----
-
 <br>
 
 ### React Developers
+
+![image](https://user-images.githubusercontent.com/210413/68954909-8cf57800-078a-11ea-90db-df58987a9790.png)
+
+Here is a univeral Dependency Injection (DI) engine; implemented in TypeScript. This DI engine is independent of Angular and can be used easily within ANY TypeScript project.
+
+- [**`makeInjector()`** for powerful, angular-like dependency injection](https://github.com/ThomasBurleson/mindspace-utils/blob/master/libs/utils/react/src/lib/di/README.md)
+
+<br>
 
 ![image](https://user-images.githubusercontent.com/210413/68954901-8961f100-078a-11ea-8141-eac38ab21dab.png)
 
@@ -20,15 +26,13 @@ This library provides TypeScript utilities for both Angular and React developers
 - [**`useObservable()`** for 'Async pipe'-like functionality](https://github.com/ThomasBurleson/mindspace-utils/blob/master/libs/utils/react/src/lib/hooks/README.md)
 
 <br/>
+
 <br/>
 
 ![image](https://user-images.githubusercontent.com/210413/68954909-8cf57800-078a-11ea-90db-df58987a9790.png)
 
-- [**`makeInjector()`** for powerful, angular-like dependency injection](https://github.com/ThomasBurleson/mindspace-utils/blob/master/libs/utils/react/src/lib/di/README.md)
 - [**`switchCase()`** for functional API used to condense switch statements](https://github.com/ThomasBurleson/mindspace-utils/blob/master/libs/utils/react/src/lib/utils/README.md)
   - [Typescript Playground](http://bit.ly/2NPQob6)
-
-<br>
 
 ---
 
