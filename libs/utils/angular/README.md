@@ -1,4 +1,4 @@
-# Mindspace-io for React
+# Mindspace-io/angular
 
 [![npm version](https://badge.fury.io/js/%40mindspace-io%2Futils.svg)](https://badge.fury.io/js/%40mindspace-io%2Futils)
 ![GitHub package.json version](https://img.shields.io/github/package-json/v/thomasburleson/mindspace-utils)

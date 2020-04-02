@@ -4,6 +4,8 @@
   "license": "MIT",
   "scripts": {
     "nx": "nx",
+    "npm": "nx build utils-react && cp ./libs/utils/react/README.md ./dist/libs/utils/react/README.md",
+    "go": "cd $(pwd)/dist/libs/utils/react",
     "start": "nx serve",
     "build": "nx build",
     "test": "nx test",

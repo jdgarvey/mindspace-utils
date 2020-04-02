@@ -1,4 +1,4 @@
-# Mindspace-io for React
+# Mindspace-io/React
 
 [![GitHub version](https://badge.fury.io/gh/ThomasBurleson%2Fmindspace-utils.svg)](https://badge.fury.io/gh/ThomasBurleson%2Fmindspace-utils)
 
