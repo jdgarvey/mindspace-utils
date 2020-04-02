@@ -1,0 +1,36 @@
+{
+  "npmScope": "mindspace-io",
+  "implicitDependencies": {
+    "workspace.json": "*",
+    "package.json": {
+      "dependencies": "*",
+      "devDependencies": "*"
+    },
+    "tsconfig.json": "*",
+    "tslint.json": "*",
+    "nx.json": "*"
+  },
+  "tasksRunnerOptions": {
+    "default": {
+      "runner": "@nrwl/workspace/tasks-runners/default",
+      "options": {
+        "cacheableOperations": ["build", "lint", "test", "e2e"]
+      }
+    }
+  },
+  "projects": {
+    "lab": {
+      "tags": []
+    },
+    "lab-e2e": {
+      "tags": [],
+      "implicitDependencies": ["lab"]
+    },
+    "utils-react": {
+      "tags": ["type:utils", "type:react"]
+    },
+    "utils-angular": {
+      "tags": ["type:util", "type:react"]
+    }
+  }
+}
