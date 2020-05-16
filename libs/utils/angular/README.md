@@ -13,10 +13,13 @@ This library provides TypeScript utilities for developers building solutions wit
 
 ![image](https://user-images.githubusercontent.com/210413/68954891-8404a680-078a-11ea-826c-879faae54eed.png)
 
-- [**`untilViewDestroyed()`** to auto-unsubscribe Observables in View Components](./libs/utils/angular/src/lib/rxjs/README.md)
+- [**`untilViewDestroyed()`** to auto-unsubscribe Observables in View Components](./src/lib/rxjs/README.md)
 
-- [**`switchCase()`** for functional API used to condense switch statements](./libs/utils/angular/src/lib/utils/README.md)
+- [**`switchCase()`** for functional API used to condense switch statements](./src/lib/utils/README.md)
+
   - [Typescript Playground](http://bit.ly/2NPQob6)
+
+- [**`EventBus`** for global messaging](./src/lib/utils/README.md)
 
 <br>
 
