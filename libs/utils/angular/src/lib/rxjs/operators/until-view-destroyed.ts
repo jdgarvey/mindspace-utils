@@ -35,7 +35,7 @@ import { takeUntil } from 'rxjs/operators';
 
 export interface NgViewComponent {
   ngOnInit?: () => void;
-  ngOnDestroy ?: () => void;
+  ngOnDestroy?: () => void;
 }
 
 /**
@@ -45,10 +45,12 @@ export interface NgViewComponent {
  *  If the `pipe(untilViewDestroyed(element.nativeEl))` is used in the constructor
  *  we must delay until the new view has been inserted into the DOM.
  */
-export function untilViewDestroyed<T>(element: ElementRef<HTMLElement> | NgViewComponent): (source: Observable<T>) => Observable<T> {
+export function untilViewDestroyed<T>(
+  element: ElementRef<HTMLElement> | NgViewComponent
+): (source: Observable<T>) => Observable<T> {
   const elRef = element['nativeElement'] as HTMLElement;
-  const destroyed$ = (elRef) ? watchElementDestroyed(elRef) : watchViewDestroyed(element as NgViewComponent);
-  return (source$: Observable<T>) => destroyed$ ? source$.pipe(takeUntil(destroyed$)) : source$;
+  const destroyed$ = watchElementDestroyed(elRef) || watchViewDestroyed(element as NgViewComponent);
+  return (source$: Observable<T>) => (destroyed$ ? source$.pipe(takeUntil(destroyed$)) : source$);
 }
 
 /**
@@ -65,9 +67,11 @@ const ON_DESTROY = 'ngOnDestroy';
  * When destroyed, stop subscriptions upstream.
  */
 export function watchElementDestroyed(nativeEl: Element, delay: number = 20): Observable<boolean> {
+  if (!nativeEl) return null;
+
   const parentNode = nativeEl.parentNode as Node;
 
-  if (!nativeEl[destroy$] && parentNode ) {
+  if (parentNode && !nativeEl[destroy$]) {
     if (typeof MutationObserver !== 'undefined') {
       const stop$ = new Subject<boolean>();
       const hasBeenRemoved = isElementRemoved(nativeEl);
@@ -98,15 +102,13 @@ export function watchElementDestroyed(nativeEl: Element, delay: number = 20): Ob
  * Note: to hook into the ngOnDestroy lifecycle method of an Angular view component
  * the `ngOnDestroy()` method must be defined (even if empty)
  */
-export function watchViewDestroyed(view:NgViewComponent): Observable<boolean> {
+export function watchViewDestroyed(view: NgViewComponent): Observable<boolean> {
   if (!isPatched(view)) {
     const origOnDestroy = view[ON_DESTROY];
-    const isFunction = (value) => (typeof value === 'function');
+    const isFunction = value => typeof value === 'function';
 
     if (isFunction(origOnDestroy) === false) {
-      throw new Error(
-        `When using untilViewDestroyed(), ${view.constructor.name}::${ON_DESTROY} is required!`
-      );
+      throw new Error(`When using untilViewDestroyed(), ${view.constructor.name}::${ON_DESTROY} is required!`);
     }
 
     const stop$ = new Subject<boolean>();
@@ -136,4 +138,3 @@ export function isElementRemoved(nativeEl) {
 export function isPatched(cmpInstance: NgViewComponent): boolean {
   return !!cmpInstance[destroy$];
 }
-
