@@ -69,9 +69,17 @@ describe('DependencyInjector', () => {
       instA = injector.get(A);
       
       expect(instA.msg).toBe("Hello Thomas");
-    });   
+    });  
+    
+    it('build a Facade with shared Store', () => {
+      const [injectorF, tokenF] = makeFacadeInjector();
+      const instF: Facade = injectorF.get(Facade);
 
-  });
+      expect(instF).toBeDefined();
+      expect(instF.store === instF.query.store).toBeTruthy();
+    });
+
+  });  
 
   describe('with parent injector', () => {
     beforeEach(() => {
@@ -208,6 +216,21 @@ class F { constructor(public e: E, public a:A){ }}
 class G { constructor(public b: B, public title = "G"){}}
 class H { constructor(public g: G){}}
 class J { constructor(public title="J"){} }
+
+
+function makeFacadeInjector(): [ DependencyInjector, InjectionToken<string> ] {
+  const token = new InjectionToken("injector.spec.ts - facade");
+  const injector = makeInjector([
+    Store,
+    { provide: Query, useClass: Query, deps:[Store]},
+    { provide: Facade, useClass: Facade, deps:[Store, Query]},
+  ]);
+  return [injector, token];
+}
+
+class Store  { };
+class Query  { constructor(public store: Store){} };
+class Facade { constructor(public store: Store, public query: Query){} };
 
 class MockB { 
   a = { title: "MockA" }; 

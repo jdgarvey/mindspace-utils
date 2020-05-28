@@ -5,3 +5,4 @@
 /node-modules
 /.vscode
 /tools
+injector.spec.ts

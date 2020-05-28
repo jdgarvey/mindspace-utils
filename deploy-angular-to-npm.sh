@@ -1,7 +1,7 @@
 #!/bin/bash
 
 echo 'Building @mindspace-io/angualr'
-nx build utils-angular 
+nx build utils-angular --prod 
 cp ./libs/utils/angular/README.md ./dist/libs/utils/angular/README.md
 echo ''
 echo 'Preparing to npm deploy updates to @mindspace-io/angular'
