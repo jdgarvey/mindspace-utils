@@ -60,7 +60,7 @@ export interface Observable<T> {
 export function useObservable<T>(observable$: Observable<T>): [T | undefined, ResetStreamSource<T>];
 export function useObservable<T>(observable$: Observable<T>, initialValue: T): [T, ResetStreamSource<T>];
 /**
- * Manage Observable subscription and report value emission.
+ * Manage Observable subscµription and report value emission.
  * - support dynamic reset of stream source
  * - support auto-unsubscribe when view component unmounts
  * @param observable$ Stream source
@@ -69,7 +69,10 @@ export function useObservable<T>(observable$: Observable<T>, initialValue: T): [
 export function useObservable<T>(observable$: Observable<T>, initialValue?: T): [T | undefined, ResetStreamSource<T>] {
   const [source$, setObservable] = useState<Observable<T>>(observable$);
   const [value, setValue] = useState<T | undefined>(initialValue);
-  const reportError = (err: any) => console.error(`useObservable() error: ${JSON.stringify(err)}`);
+  const reportError = (err: any) => {
+    setValue(undefined);
+    console.error(`useObservable() error: ${JSON.stringify(err)}`);
+  };
 
   useEffect(() => {
     if (source$) {
