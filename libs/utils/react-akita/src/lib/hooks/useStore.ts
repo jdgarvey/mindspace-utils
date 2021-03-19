@@ -62,7 +62,7 @@ export function createStore<TState extends State>(
   const setIsLoading = (isLoading = true) => store.update((s) => ({ ...s, isLoading }));
   const setError = (error: Error | unknown) => store.update((s) => ({ ...s, error }));
 
-  const destroy: Destroy = () => store.destroy();
+  // The subscribe function allows components to bind to a state-portion without forcing re-render on changes
   const subscribe: Subscribe<TState> = <StateSlice>(
     listener: StateListener<TState> | StateSliceListener<StateSlice>,
     selector: StateSelector<TState & Status, StateSlice> = identity
@@ -71,6 +71,7 @@ export function createStore<TState extends State>(
     const watcher = query.select(selector).subscribe(onNext);
     return () => watcher.unsubscribe();
   };
+  const destroy: Destroy = () => store.destroy();
 
   const api: StoreApi<TState> = { destroy, subscribe, getState, setState, setIsLoading, setError };
   const state = produce({}, () => createState(setState, getState, api));
