@@ -16,7 +16,6 @@
     "skipDefaultLibCheck": true,
     "baseUrl": ".",
     "paths": {
-      "@mindspace-io/react": ["libs/utils/react/src/index.ts"],
       "@mindspace-io/utils/react": ["libs/utils/react/src/index.ts"],
       "@mindspace-io/utils/angular": ["libs/utils/angular/src/index.ts"]
     }

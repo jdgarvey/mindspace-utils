@@ -1,52 +1,17 @@
 # @mindspace-io/react-akita
 
-[![GitHub version](https://badge.fury.io/gh/ThomasBurleson%2Fmindspace-utils.svg)](https://badge.fury.io/gh/ThomasBurleson%2Fmindspace-utils)
+![image](https://user-images.githubusercontent.com/210413/111729764-d4d45580-883d-11eb-8284-3f38f8963df2.png)
 
 ## Purpose
 
-This library provides special React utilities to easily manage lightweight state with and Akita store and React hooks... using the Akita engine under-the-hood.
+A small, super powerful statemanagement library for React; using an [Akita](https://github.com/datorama/akita) engine and [Zustand](github.com/pmndrs/zustand)-like API.
 
-Without this library, developers were forced to use either:
+This library now provides super-powered Store `createStore()` function to simultaneously 
 
-- an imperative approach to (1) create an Akita Store+Query to manage state, and
-- use custom hooks + Facades to encapsulate the Store/Query.
+* Create a store with managed state, and 
+* Create a React hook to query its associated store state.
 
-This library now provides super-powered Store `createStore()` function to simultaneously create a store and publish a React hook to query the store state.
-
-This library publishes an API similar to that from [Zustand](github.com/pmndrs/zustand)... but with the power of Akita used under the hood.
-
-> Please consult the [Zustand ReadMe](https://github.com/pmndrs/zustand/blob/master/readme.md) for details on usages.
-
-<br/>
-
-## Special Features
-
-When a store is created it has the following functional API:
-
-```ts
-export interface StoreApi<T extends State> extends StatusAPI {
-  setState: SetState<T>;
-  getState: GetState<T>;
-  subscribe: Subscribe<T>;
-  destroy: Destroy;
-}
-```
-
-Often state management requires status tracking for loading activity and error conditions.
-
-In addition to the Store API, the store is now auto enhanced with the following features:
-
-```ts
-export type Status = { isLoading: boolean; error: unknown };
-export interface StatusAPI {
-  setIsLoading: (isLoading = true) => void;
-  setError: (error: unknown) => void;
-}
-```
-
-- The state is enhanced to include Status properties
-- The Store API is enhanced to include Status API functions
-- All state emitted (via selectors) is now immutable; using Immer internally
+> Please consult the [Zustand ReadMe](https://github.com/pmndrs/zustand/blob/master/readme.md) for details on additional usages.
 
 <br/>
 
@@ -75,7 +40,7 @@ const store = createStore<StoreState>(onStoreReady);
 const useStore = store; // store is ALSO a React hook
 ```
 
-The `store` is **BOTH** a React Hook and store API.
+The `store` is **BOTH** a React Hook and [store API](#using-the-store-api).
 
 <br/>
 
@@ -121,6 +86,8 @@ function BearCounter() {
 
 ## Using the Store API
 
+When a store is created it has the following functional API:
+
 ```ts
 export interface StoreApi<T extends State> extends StatusAPI {
   setState: SetState<T>;
@@ -135,6 +102,29 @@ const store: StoreAPI<StoreState> = createStore<StoreState>(onStoreReady);
 Using the Store API allows developers to imperatively query/update state, subscribe for change notifications, or dispose of the store.
 
 This can be very useful for scenarios where the API is used outside a Component; the React Hook may not be available.
+
+<br/>
+
+## Special Features
+
+- The state is enhanced to include Status properties
+- The Store API is enhanced to include Status API functions
+- All state emitted (via selectors) is now immutable; using Immer internally
+
+Often state management requires status tracking for loading activity and error conditions.
+
+In addition to the Store API, the store is now auto enhanced with the following features:
+
+```ts
+export interface StatusAPI {
+  setIsLoading: (isLoading = true) => void;
+  setError: (error: unknown) => void;
+}
+
+export type Status = { isLoading: boolean; error: unknown };
+```
+
+<br/>
 
 ---
 

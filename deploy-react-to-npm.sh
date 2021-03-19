@@ -1,3 +1,4 @@
+#!/bin/echo USAGE: source 
 #!/bin/bash
 
 echo 'Building @mindspace-io/react'

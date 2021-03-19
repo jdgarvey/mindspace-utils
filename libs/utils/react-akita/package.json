@@ -1,6 +1,6 @@
 {
   "name": "@mindspace-io/react-akita",
-  "version": "1.1.8",
+  "version": "1.1.9",
   "author": {
     "name": "Thomas Burleson, Mindspace",
     "email": "ThomasBurleson@Gmail.com"
@@ -18,8 +18,7 @@
     "url": "https://github.com/ThomasBurleson/mindspace-utils/issues"
   },
   "dependencies": {
-    "@mindspace-io/react": ">1.1.6",
-    "@datorama/akita": ">6.1.2",
+    "@datorama/akita": ">6.1.1",
     "immer": ">8.0.0",
     "rxjs": ">6.5.0"
   },

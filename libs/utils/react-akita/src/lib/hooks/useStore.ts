@@ -1,6 +1,6 @@
 import { produce } from 'immer';
 import { Query, Store, StoreConfigOptions, StoreConfig } from '@datorama/akita';
-import { useObservable } from '@mindspace-io/react';
+import { useObservable } from './useObservable';
 import { useEffect, useLayoutEffect } from 'react';
 
 import {
