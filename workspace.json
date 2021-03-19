@@ -128,5 +128,5 @@
       "library": { "style": "styled-jsx", "linter": "eslint" }
     }
   },
-  "defaultProject": "lab"
+  "defaultProject": "utils-react-akita"
 }

@@ -9,5 +9,5 @@ echo 'Preparing to npm deploy updates to @mindspace-io/react'
 echo ''
 cd $(pwd)/dist/libs/utils/react && ls
 echo ''
-echo -e "\033[1;92m Publishing!"
+echo -e "\033[1;92m Publishing '@mindspace-io/react'!"
 echo -e "\033[1;95m npm publish --access public" 
