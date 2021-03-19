@@ -12,11 +12,15 @@ import { createStore } from './useStore';
 // ************************************
 
 type MessageState = {
-  messages: string[];
-  saveMessages: (list: string[]) => string[];
+  messages?: string[];
+  saveMessages?: (list: string[]) => string[];
+
+  numViews?: number;
+  incrementCount?: () => void;
 };
 
 type EmailState = {
+  numViews?: number;
   emails: string[];
   saveEmails: (list: string[]) => void;
 } & Partial<Status>;
@@ -168,7 +172,7 @@ describe('UseStore state management', () => {
       expect(result.current[0].length).toBe(2);
     });
 
-    it('should update state', () => {
+    it('should update state with value', () => {
       const { result } = renderHook<UseStore<EmailState>, EmailState>(useStore);
 
       expect(result.current.emails.length).toBe(1);
@@ -180,7 +184,43 @@ describe('UseStore state management', () => {
       expect(result.current.emails.length).toBe(2);
       expect(result.current.emails[0]).toBe('Harry@hotpixelgroup.com');
     });
+
+    it('update state with partial selector; confirm with getState()', () => {
+      const useStore = createStore<MessageState>(set => ({  
+        messages: [],         
+        saveMessages: (v) => v ,
+        numViews: 0,
+        incrementCount: () => set((s: MessageState) => ({ numViews: s.numViews + 1 }))
+      })); // prettier-ignore
+      const state = useStore.getState();
+      expect(state.numViews).toBe(0);
+
+      act(() => {
+        state.incrementCount();
+      });
+
+      const updated = useStore.getState();
+      expect(updated.numViews).toBe(1);
+    });
   });
+
+  it('update state with partial selector; confirm with hook selector', () => {
+    const useStore = createStore<MessageState>(set => ({  
+      numViews: 0,
+      incrementCount: () => set((s: MessageState) => ({ numViews: s.numViews + 1 }))
+    })); // prettier-ignore
+    const { result } = renderHook(useStore, {
+      initialProps: s => [s.numViews, s.incrementCount]
+    });
+    const incrementCount = result.current[1];
+
+    expect(result.current[0]).toBe(0);
+    act(() => {
+      incrementCount();
+    });
+    expect(result.current[0]).toBe(1);
+  });
+});
 
   describe('enforces immutability', () => {
     beforeEach(() => {

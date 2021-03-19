@@ -6,10 +6,10 @@
 
 A small, super powerful statemanagement library for React; using an [Akita](https://github.com/datorama/akita) engine and [Zustand](github.com/pmndrs/zustand)-like API.
 
-This library now provides super-powered Store `createStore()` function to simultaneously 
+This library now provides super-powered Store `createStore()` function to simultaneously
 
-* Create a store with managed state, and 
-* Create a React hook to query its associated store state.
+- Create a store with managed state, and
+- Create a React hook to query its associated store state.
 
 > Please consult the [Zustand ReadMe](https://github.com/pmndrs/zustand/blob/master/readme.md) for details on additional usages.
 

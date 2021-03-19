@@ -1,7 +1,8 @@
-import { produce } from 'immer';
-import { Query, Store, StoreConfigOptions, StoreConfig } from '@datorama/akita';
-import { useObservable } from './useObservable';
 import { useEffect, useLayoutEffect } from 'react';
+import { Query, Store, StoreConfigOptions, StoreConfig } from '@datorama/akita';
+import { produce } from 'immer';
+
+import { useObservable } from './useObservable';
 
 import {
   Destroy,
@@ -54,7 +55,7 @@ export function createStore<TState extends State>(
   const getState: GetState<TState> = store.getValue.bind(store);
   const setState: SetState<TState> = (partial, replace) => {
     store.update((s) => {
-      return replace ? s : { ...s, ...partial };
+      return replace ? s : { ...s, ...(partial instanceof Function ? partial(s) : partial) };
     });
   };
 
