@@ -1,5 +1,4 @@
 {
-  "npmScope": "mindspace-io",
   "implicitDependencies": {
     "workspace.json": "*",
     "package.json": {
@@ -11,6 +10,10 @@
     "nx.json": "*",
     "tsconfig.base.json": "*"
   },
+  "affected": {
+    "defaultBase": "master"
+  },
+  "npmScope": "mindspace-io",
   "tasksRunnerOptions": {
     "default": {
       "runner": "@nrwl/workspace/tasks-runners/default",
@@ -28,9 +31,13 @@
     },
     "utils-angular": {
       "tags": ["type:util", "scope:angular"]
+    },
+    "test-react-akita": {
+      "tags": []
+    },
+    "test-react-akita-e2e": {
+      "tags": [],
+      "implicitDependencies": ["test-react-akita"]
     }
-  },
-  "affected": {
-    "defaultBase": "master"
   }
 }

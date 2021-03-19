@@ -1,5 +1,5 @@
 import { useEffect, useLayoutEffect } from 'react';
-import { Query, Store, StoreConfigOptions, StoreConfig } from '@datorama/akita';
+import { Query, Store, StoreConfigOptions, StoreConfig, UpdateStateCallback } from '@datorama/akita';
 import { produce } from 'immer';
 
 import { useObservable } from './useObservable';
@@ -54,16 +54,9 @@ export function createStore<TState extends State>(
   // Build API methods used that delegate to the store and query
   const getState: GetState<TState> = store.getValue.bind(store);
   const setState: SetState<TState> = (partial, replace) => {
-    store.update((s) => {
-      // partial could be a callback to modify a draft of the state
-      if (partial instanceof Function) {
-        partial = partial(s); // return undefined if the state is 'modified'
-        if (!partial) {
-          return;
-        }
-      }
-      return replace ? s : { ...s, ...partial };
-    });
+    const isCallback = partial instanceof Function;
+    const updateWithValue: UpdateStateCallback<TState> = (s) => (replace ? s : { ...s, ...partial });
+    store.update(!isCallback ? updateWithValue : (partial as UpdateStateCallback<TState>));
   };
 
   const setIsLoading = (isLoading = true) => store.update((s) => ({ ...s, isLoading }));
