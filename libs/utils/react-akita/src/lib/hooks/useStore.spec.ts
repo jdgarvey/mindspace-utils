@@ -202,25 +202,40 @@ describe('UseStore state management', () => {
       const updated = useStore.getState();
       expect(updated.numViews).toBe(1);
     });
-  });
 
-  it('update state with partial selector; confirm with hook selector', () => {
-    const useStore = createStore<MessageState>(set => ({  
-      numViews: 0,
-      incrementCount: () => set((s: MessageState) => ({ numViews: s.numViews + 1 }))
-    })); // prettier-ignore
-    const { result } = renderHook(useStore, {
-      initialProps: s => [s.numViews, s.incrementCount]
-    });
-    const incrementCount = result.current[1];
+    it('update state with partial selector that returns new state', () => {
+      const useStore = createStore<MessageState>((set) => ({
+        numViews: 0,
+        incrementCount: () => set((s: MessageState) => ({ numViews: s.numViews + 1 })),
+      }));
+      const { result } = renderHook(useStore, { initialProps: (s) => [s.numViews, s.incrementCount] });
 
-    expect(result.current[0]).toBe(0);
-    act(() => {
-      incrementCount();
+      expect(result.current[0]).toBe(0);
+      act(() => {
+        const incrementCount = result.current[1];
+        incrementCount();
+      });
+      expect(result.current[0]).toBe(1);
     });
-    expect(result.current[0]).toBe(1);
+
+    it('update state with partial selector that modifies the draft', () => {
+      const useStore = createStore<MessageState>((set) => ({
+        numViews: 0,
+        incrementCount: () =>
+          set((draft: MessageState) => {
+            draft.numViews += 1; // just modify the draft... Immer manages the immutability
+          }),
+      }));
+      const { result } = renderHook(useStore, { initialProps: (s) => [s.numViews, s.incrementCount] });
+
+      expect(result.current[0]).toBe(0);
+      act(() => {
+        const incrementCount = result.current[1];
+        incrementCount();
+      });
+      expect(result.current[0]).toBe(1);
+    });
   });
-});
 
   describe('enforces immutability', () => {
     beforeEach(() => {

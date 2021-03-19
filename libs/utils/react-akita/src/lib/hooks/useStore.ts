@@ -55,7 +55,14 @@ export function createStore<TState extends State>(
   const getState: GetState<TState> = store.getValue.bind(store);
   const setState: SetState<TState> = (partial, replace) => {
     store.update((s) => {
-      return replace ? s : { ...s, ...(partial instanceof Function ? partial(s) : partial) };
+      // partial could be a callback to modify a draft of the state
+      if (partial instanceof Function) {
+        partial = partial(s); // return undefined if the state is 'modified'
+        if (!partial) {
+          return;
+        }
+      }
+      return replace ? s : { ...s, ...partial };
     });
   };
 
