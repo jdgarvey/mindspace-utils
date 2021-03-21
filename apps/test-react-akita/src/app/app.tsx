@@ -1,83 +1,32 @@
-import React, { useCallback } from 'react';
-import { createStore, State, StateSelector } from '@mindspace-io/react-akita';
+import React from 'react';
+
+import { Header } from './components/header';
+import { SimpleCounter } from './components/1-simple-counter/simple-counter';
+import { FilteredMessages } from './components/2-computed-property/filtered-messages';
+import { AsyncEmail } from './components/3-async-loading/async-email';
 
 import './app.css';
 
 // ************************************
-// Define the managed state and create a store
-//
-// createStore() returns a react hook
-//   - called without a selector returns the entire state
-//   - called with a selector returns state slice
-//
-// State managed in store using Akita and Immer
-// Exposes immutable data, memoized selectors, and
-// auto-adds 'error/isLoading/setLoading/setError' properties to the state
-// ************************************
-
-interface TestState extends State {
-  count: number;
-  incrementCount: () => void;
-  decrementCount: () => void;
-}
-
-const useStore = createStore<TestState>((set) => ({
-  messages: [],
-  count: 0,
-  incrementCount: () =>
-    set((s) => {
-      // Reducer-like: create and *return* new state
-      return { ...s, count: s.count + 1 };
-    }),
-  decrementCount: () =>
-    set((s) => {
-      // This updater just modifies the draft directly... no reducer-like complexity
-      //  feature supported as part of Akita + Immer
-      s.count -= 1;
-    }),
-}));
-
-// ************************************
-// Main approach:
-// Must employ `useCallback()`; since the selector is defined inside the render function.
-// ************************************
 
 const App: React.FC = () => {
-  const [count, decrement, increment] = useStore(
-    useCallback((s: TestState) => [s.count, s.decrementCount, s.incrementCount], [])
-  );
-
   return (
-    <div className="App">
-      <h1>Hello CodeSandbox</h1>
-      <h2>You have clicked the magic button {count} times!</h2>
-      <button onClick={increment}> Increment Count </button>
-      <button onClick={decrement}> Decrement Count </button>
-    </div>
-  );
-};
-
-// ************************************
-// Another approach:
-// Does not employ `useCallback()`. Instead the selector is defined outside the render function.
-// ************************************
-
-type TestSelector = [number, () => void, () => void];
-const selector: StateSelector<TestState, TestSelector> = (s: TestState) => [
-  s.count,
-  s.decrementCount,
-  s.incrementCount,
-];
-
-const AppAlternate: React.FC = () => {
-  const [count, decrement, increment] = useStore(selector);
-
-  return (
-    <div className="App">
-      <h1>Hello CodeSandbox</h1>
-      <h2>You have clicked the magic button {count} times!</h2>
-      <button onClick={increment}> Increment Count </button>
-      <button onClick={decrement}> Decrement Count </button>
+    <div className="grid-container">
+      <div className="header">
+        <Header />
+      </div>
+      <div className="left">
+        <div className="sample-info">simple-counter.tsx</div>
+        <SimpleCounter />
+      </div>
+      <div className="center">
+        <div className="sample-info">filtered-messages.tsx</div>
+        <FilteredMessages />
+      </div>
+      <div className="right">
+        <div className="sample-info">async-email.tsx</div>
+        <AsyncEmail />
+      </div>
     </div>
   );
 };

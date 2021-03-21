@@ -4,7 +4,7 @@ import { renderHook, act } from '@testing-library/react-hooks';
 // import * as matchers from 'jest-immutable-matchers';
 // These ^ matchers do not work with Immer; so we must manually check immutability
 
-import { StateSelector, UseStore, Status } from './store.interfaces';
+import { StateSelector, UseStore, State } from './store.interfaces';
 import { createStore } from './useStore';
 
 // ************************************
@@ -13,17 +13,16 @@ import { createStore } from './useStore';
 
 type MessageState = {
   messages?: string[];
-  saveMessages?: (list: string[]) => string[];
-
   numViews?: number;
   incrementCount?: () => void;
+  saveMessages?: (list: string[]) => string[];
 };
 
-type EmailState = {
+interface EmailState extends State {
   numViews?: number;
   emails: string[];
   saveEmails: (list: string[]) => void;
-} & Partial<Status>;
+}
 
 type EmailList = string[];
 type SaveEmailsFn = (list: string[]) => void;

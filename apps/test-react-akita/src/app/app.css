@@ -1,38 +1,84 @@
-.App {
-  text-align: center;
+.magicbox {
+  padding: 15px;
+  padding-left: 25px;
+  min-height: 220px;
+  border: solid 1px burlywood;
 }
 
-.App-logo {
-  height: 40vmin;
-  pointer-events: none;
-}
-
-@media (prefers-reduced-motion: no-preference) {
-  .App-logo {
-    animation: App-logo-spin infinite 20s linear;
-  }
-}
-
-.App-header {
-  background-color: #282c34;
-  min-height: 100vh;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  font-size: calc(10px + 2vmin);
+.magicbox .count {
+  font-weight: bold;
   color: white;
+  border: solid 5px rgb(38, 50, 155);
+  background-color: rgb(38, 50, 155);
 }
 
-.App-link {
-  color: #61dafb;
+.magicbox button:last-child {
+  margin-left: 20px;
 }
 
-@keyframes App-logo-spin {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
+.filteredEmails {
+  display: block;
+  position: relative;
+  padding: 15px;
+  border: solid 1px burlywood;
+  min-height: 220px;
+}
+.filteredEmails .filterBy {
+  margin-bottom: 30px;
+}
+
+.sample-info {
+  display: block;
+  position: absolute;
+  top: 0;
+  left: 0;
+  min-width: 60px;
+  min-height: 20px;
+  color: white;
+  background-color: rgb(35, 35, 35);
+  z-index: 999;
+  border-radius: 3px;
+  font-size: 0.8em;
+  padding: 4px 7px 4px 7px;
+}
+
+.filteredEmails .message span {
+  padding-right: 10px;
+}
+
+.grid-container {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(320px, 1fr));
+  grid-template-rows: 0.4fr 1.6fr;
+  gap: 0px 7px;
+  grid-template-areas:
+    'header header header'
+    'left center right';
+}
+.header {
+  grid-area: header;
+}
+
+.header > div {
+  display: flex;
+  justify-content: center;
+}
+
+.left {
+  grid-area: left;
+  display: block;
+  position: relative;
+  padding-top: 25px;
+}
+.center {
+  grid-area: center;
+  display: block;
+  position: relative;
+  padding-top: 25px;
+}
+.right {
+  grid-area: right;
+  display: block;
+  position: relative;
+  padding-top: 25px;
 }
