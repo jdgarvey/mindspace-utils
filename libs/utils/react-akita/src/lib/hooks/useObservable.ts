@@ -58,7 +58,7 @@ export interface Observable<T> {
 }
 
 export function useObservable<T>(observable$: Observable<T>): [T | undefined, ResetStreamSource<T>];
-export function useObservable<T>(observable$: Observable<T>, initialValue: T): [T, ResetStreamSource<T>];
+export function useObservable<T>(observable$: Observable<T>, initialValue: T | (() => T)): [T, ResetStreamSource<T>];
 /**
  * Manage Observable subscµription and report value emission.
  * - support dynamic reset of stream source
@@ -66,7 +66,10 @@ export function useObservable<T>(observable$: Observable<T>, initialValue: T): [
  * @param observable$ Stream source
  * @param initialValue initial value; to simulate 1st stream emission
  */
-export function useObservable<T>(observable$: Observable<T>, initialValue?: T): [T | undefined, ResetStreamSource<T>] {
+export function useObservable<T>(
+  observable$: Observable<T>,
+  initialValue?: T | (() => T)
+): [T | undefined, ResetStreamSource<T>] {
   const [source$, setObservable] = useState<Observable<T>>(observable$);
   const [value, setValue] = useState<T | undefined>(initialValue);
   const reportError = (err: any) => {

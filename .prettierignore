@@ -6,3 +6,4 @@
 /.vscode
 /tools
 injector.spec.ts
+/apps/test-react-akita/src/app/components/

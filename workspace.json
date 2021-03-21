@@ -3,7 +3,7 @@
   "cli": {
     "defaultCollection": "@nrwl/react"
   },
-  "defaultProject": "utils-react-akita",
+  "defaultProject": "test-react-akita",
   "generators": {
     "@nrwl/react": {
       "application": {
