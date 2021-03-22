@@ -1,7 +1,7 @@
 import React from 'react';
-import { useStore, MessagesState } from './async-email.store';
+import { useStore, MessagesState } from './async-messages.store';
 
-export const AsyncEmail: React.FC = () => {
+export const AsyncMessages: React.FC = () => {
   const state: MessagesState = useStore();
 
   return (
@@ -22,10 +22,10 @@ export const AsyncEmail: React.FC = () => {
         <>
           Emails:
           <ul>
-            {state.emails.map((msg, i) => (
-              <div className="message" key={i}>
-                <span>{i+1}).</span> {msg}
-              </div>
+            {state.messages.map((msg, i) => (
+              <li className="message" key={i}>
+                {msg}
+              </li>
             ))}
           </ul>
           <button onClick={state.refresh}> Refresh </button>

@@ -43,6 +43,16 @@
   border-radius: 3px;
   font-size: 0.8em;
   padding: 4px 7px 4px 7px;
+
+  a {
+    &:visited,
+    &:link {
+      color: white;
+    }
+    &:hover {
+      color: greenyellow;
+    }
+  }
 }
 
 .filteredEmails .message span {
@@ -51,12 +61,13 @@
 
 .grid-container {
   display: grid;
-  grid-template-columns: repeat(3, minmax(320px, 1fr));
+  grid-template-columns: 1fr;
   grid-template-rows: 0.4fr 1.6fr;
   gap: 0px 7px;
   grid-template-areas:
-    'header header header'
-    'left center right';
+    'header'
+    'content';
+  justify-items: center;
 }
 .header {
   grid-area: header;
@@ -66,22 +77,34 @@
   display: flex;
   justify-content: center;
 }
+.content {
+  grid-area: content;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-around;
+  column-gap: 10px;
+  position: relative;
+}
+.content > div {
+  display: block;
+  position: relative;
+  width: 500px;
+  padding-top: 25px;
+  margin: 6px;
+}
 
-.left {
-  grid-area: left;
-  display: block;
-  position: relative;
-  padding-top: 25px;
-}
-.center {
-  grid-area: center;
-  display: block;
-  position: relative;
-  padding-top: 25px;
-}
-.right {
-  grid-area: right;
-  display: block;
-  position: relative;
-  padding-top: 25px;
+ul {
+  list-style: none;
+  counter-reset: numCounter;
+
+  li {
+    counter-increment: numCounter;
+
+    &:before {
+      content: counter(numCounter) '. ';
+      color: rgb(34, 23, 129);
+      font-weight: bold;
+      padding-right: 4px;
+    }
+  }
 }

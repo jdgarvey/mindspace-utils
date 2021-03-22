@@ -4,7 +4,7 @@ export const Header: React.FC = () => {
   return <div>
     <img
         src="https://user-images.githubusercontent.com/210413/111729764-d4d45580-883d-11eb-8284-3f38f8963df2.png"
-        width="30%"
+        width="305px" height="182px"
       />
     <div>
     <h1>Mindspace-io/React-Akita</h1>
@@ -12,7 +12,7 @@ export const Header: React.FC = () => {
     <p style={{ margin: '5px', lineHeight: '25px' }}>
       See how state can be easily managed using this new library.
       <br />
-      The UI below interacts with their own stores!
+        Each of the tests below interact with their own stores!
       <br />
     </p>
     <p style={{ marginTop: '10px', marginLeft: '50px' }}>

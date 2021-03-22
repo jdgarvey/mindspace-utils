@@ -1,17 +1,19 @@
-import React, { ChangeEvent, useCallback } from 'react';
-
+import React from 'react';
 import { selectViewModel, useStore } from './filtered-messages.store';
 
+/**
+ * Show list of messages that container the searchCriteria
+ */
 export const FilteredMessages: React.FC = () => {
-  const [filterBy, messages, updateFilterBy] = useStore(selectViewModel);
+  const [searchCriteria, messages, updateFilterBy] = useStore(selectViewModel);
 
   return (
     <div className="filteredEmails">
 
       <div className="filterBy">
-        <label htmlFor="filterBy"> Filter by: </label>
+        <label htmlFor="filterBy"> Search for: </label>
         <input type="text" 
-               value={filterBy} 
+               value={searchCriteria} 
                onChange={(e) => updateFilterBy(e.target.value)} 
         />
       </div>
@@ -20,9 +22,9 @@ export const FilteredMessages: React.FC = () => {
       
       <ul>
         {messages.map((msg, i) => (
-          <div className="message" key={i}>
-            <span>{i+1}).</span> {msg}
-          </div>
+          <li className="message" key={i}>
+           {msg}
+          </li>
         ))}
       </ul>
 

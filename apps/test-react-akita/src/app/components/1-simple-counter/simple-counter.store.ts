@@ -2,7 +2,9 @@ import { createStore, State, StateSelector } from '@mindspace-io/react-akita';
 
 /**********************************************
  *  Purpose:
+ * 
  *  Demonstrate the use of simple state management
+ * 
  **********************************************/
 
 
@@ -18,8 +20,7 @@ export interface CounterState extends State {
 }
 
 /*******************************************
- * Define the view model
- * Define a selector function to extract ViewModel from `useStore(<selector>)`
+ * Define the view model + a selector function to extract ViewModel 
  *******************************************/
 
 export type ViewModel = StateSelector<CounterState, [number, () => void, () => void]>;
@@ -35,12 +36,10 @@ export const selectViewModel: ViewModel = (s: CounterState) => {
 export const useStore = createStore<CounterState>((set) => ({
   visits: 0,
   messages: [],
-  incrementCount() {
-    // uses reducer-like to create new state
+  incrementCount() {  // uses reducer-like to create new state
     set((s) => ({ ...s, visits: s.visits + 1 }));
   },
-  decrementCount() {
-    // uses Immer to support deep mutations
+  decrementCount() {  // uses Immer to support deep mutations
     set((draft) => {
       draft.visits -= 1; //
     });
