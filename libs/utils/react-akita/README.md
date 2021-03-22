@@ -12,7 +12,7 @@ This React library now provides super-powered Store `createStore()` function to 
 - Create a store with managed state, and
 - Create a React hook to query its associated store state.
 
-![Store](https://vuejs.org/images/state.pnghttps://vuejs.org/images/state.png)
+![store-view](https://user-images.githubusercontent.com/210413/112065962-8c65b200-8b33-11eb-86b5-1bf831b6f4de.jpg)
 
 <br/>
 
