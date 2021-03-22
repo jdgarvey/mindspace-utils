@@ -12,6 +12,15 @@ This library provides TypeScript utilities for both Angular and React developers
 
 ### React Developers
 
+![image](https://user-images.githubusercontent.com/210413/112065006-ebc2c280-8b31-11eb-9e73-1850f69cb659.png)
+
+A super simply powerful State Management library React. Inspired by Vue and Zustand and controlled by Akita:
+
+- [**`createStore()`** to quickly create a store with managed state](https://github.com/ThomasBurleson/mindspace-utils/tree/master/libs/utils/react-akita)
+- **`useStore()`** to easily build a live connection between the state and a view.
+
+<br>
+
 ![image](https://user-images.githubusercontent.com/210413/68954909-8cf57800-078a-11ea-90db-df58987a9790.png)
 
 Here is a univeral Dependency Injection (DI) engine; implemented in TypeScript. This DI engine is independent of Angular and can be used easily within ANY TypeScript project.

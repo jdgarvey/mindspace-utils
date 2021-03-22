@@ -4,43 +4,49 @@
 
 ## Purpose
 
-A small, super powerful statemanagement library for React; using an [Akita](https://github.com/datorama/akita) engine and [Zustand](github.com/pmndrs/zustand)-like API.
+A small, super powerful statemanagement library for React... using an [Akita](https://github.com/datorama/akita) engine and [Zustand](github.com/pmndrs/zustand)-like API.
+Developers familiar with Vue will recognize this state management approach using stores and mutators:
 
-This library now provides super-powered Store `createStore()` function to simultaneously
+This React library now provides super-powered Store `createStore()` function to simultaneously
 
 - Create a store with managed state, and
 - Create a React hook to query its associated store state.
 
-> Please consult the [Zustand ReadMe](https://github.com/pmndrs/zustand/blob/master/readme.md) for details on additional usages.
+![Store](https://vuejs.org/images/state.pnghttps://vuejs.org/images/state.png)
 
 <br/>
 
 ### Create a Store
 
-The beauty of the `createStore()` is that a factory function is used to build the initial state. And the factory function is actually provided the `set`, `get`, `api` store api:
+The beauty of the `createStore()` is that a factory function is used to build the initial state.
+And the factory function is actually provided the `set`, `get`, `api` store api:
 
 ```ts
 import create from '@mindspace-io/react-akita';
 
+// Define store structure
 interface StoreState {
   bears: number;
   increasePopulation: () => void;
   removeAllBears: () => void;
 }
 
-const onStoreReady = (set, get, api) => {
+const onBuildState = (set, get, api) => {
   return {
+    // Properties
     bears: 0,
+
+    // Mutators
     increasePopulation: () => set((state) => ({ bears: state.bears + 1 })),
     removeAllBears: () => set({ bears: 0 }),
   };
 };
 
-const store = createStore<StoreState>(onStoreReady);
-const useStore = store; // store is ALSO a React hook
+// Build a React hook connected 'live' to the store state
+const useStore = createStore<StoreState>(onBuildState);
 ```
 
-The `store` is **BOTH** a React Hook and [store API](#using-the-store-api).
+> The `store` is simultaneously **BOTH** a React Hook and [store API](#using-the-store-api).
 
 <br/>
 
@@ -61,6 +67,8 @@ function Controls() {
 }
 ```
 
+#### Usage Considerations
+
 NOTE: you **cannot** use the hook multiple times in the same component:
 
 ```tsx
@@ -72,15 +80,21 @@ function BearCounter() {
 }
 ```
 
-This ^ will generate runtime errors. The solution is to combine the two (2) selectors into a single, composite selector:
+This ^ will generate runtime errors.
+
+The solution is to combine the two (2) selectors into a single, composite selector:
 
 ```tsx
 function BearCounter() {
-  const [bears, increasePopulation] = useStore((state) => [state.bears, state.increasePopulation]);
+  const selector = [(state) => state.bears, (state) => state.increasePopulation];
+  const [bears, increasePopulation] = useStore(selector);
 
   return <h1 onClick={increasePopulation}>{bears} around here ...</h1>;
 }
 ```
+
+The important concept here is that the `selector` is used to build a live connection between those properties in the store state and the view component.
+Whenever those values change, then the view will be re-rendered with the latest values.
 
 <br/>
 
@@ -93,6 +107,7 @@ export interface StoreApi<T extends State> extends StatusAPI {
   setState: SetState<T>;
   getState: GetState<T>;
   subscribe: Subscribe<T>;
+  addComputed: AddComputed<T>;
   destroy: Destroy;
 }
 
@@ -102,6 +117,8 @@ const store: StoreAPI<StoreState> = createStore<StoreState>(onStoreReady);
 Using the Store API allows developers to imperatively query/update state, subscribe for change notifications, or dispose of the store.
 
 This can be very useful for scenarios where the API is used outside a Component; the React Hook may not be available.
+
+> Please consult the [Zustand ReadMe](https://github.com/pmndrs/zustand/blob/master/readme.md) for details on additional usages.
 
 <br/>
 
@@ -125,6 +142,16 @@ export type Status = { isLoading: boolean; error: unknown };
 ```
 
 <br/>
+
+---
+
+### Live Demos
+
+A CodeSandbox demo has been prepared to allow developers to quickly and easily play with these features:
+
+[![image](https://user-images.githubusercontent.com/210413/112064593-3abc2800-8b31-11eb-905c-623cbcc5a7ab.png)](https://codesandbox.io/s/state-w-react-akita-createstore-it03e?file=/src/components/3-computed-property/filtered-messages.tsx)
+
+> Click on the image to open the sandbox demo.
 
 ---
 
