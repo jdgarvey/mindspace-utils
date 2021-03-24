@@ -10,14 +10,14 @@ This library provides TypeScript utilities for both Angular and React developers
 
 <br>
 
-### React Developers
+### React State Management
 
-![image](https://user-images.githubusercontent.com/210413/112065006-ebc2c280-8b31-11eb-9e73-1850f69cb659.png)
+![react-akita splash](https://user-images.githubusercontent.com/210413/112369582-54cd4600-8caa-11eb-9c7d-54ccfb7e0277.png)
 
 A super simply powerful State Management library React. Inspired by Vue and Zustand and controlled by Akita:
 
 - [**`createStore()`** to quickly create a store with managed state](https://github.com/ThomasBurleson/mindspace-utils/tree/master/libs/utils/react-akita)
-- **`useStore()`** to easily build a live connection between the state and a view.
+- [**`useStore()`** to easily build a live connection between the state and a view.](https://github.com/ThomasBurleson/mindspace-utils/blob/master/libs/utils/react-akita/src/lib/hooks/useStore.ts#L250-L263)
 
 <br>
 
@@ -29,10 +29,13 @@ Here is a univeral Dependency Injection (DI) engine; implemented in TypeScript. 
 
 <br>
 
+### React useObservable(), DI, EventBus, and more...
+
 ![image](https://user-images.githubusercontent.com/210413/68954901-8961f100-078a-11ea-8141-eac38ab21dab.png)
 
 - [**`useInjectorHook()`** for fast DI lookups of singleton services](https://github.com/ThomasBurleson/mindspace-utils/blob/master/libs/utils/react/src/lib/hooks/README.md)
 - [**`useObservable()`** for 'Async pipe'-like functionality](https://github.com/ThomasBurleson/mindspace-utils/blob/master/libs/utils/react/src/lib/hooks/README.md)
+- [**EventBus** for easy messaging anywhere in the FE web app](https://github.com/ThomasBurleson/mindspace-utils/blob/master/libs/utils/react/src/lib/utils/eventbus.ts)
 
 <br/>
 

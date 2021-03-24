@@ -39,14 +39,6 @@ import {
   StateSelectorList,
 } from './store.interfaces';
 
-/**
- * Akita expects a store decorator to be used to assign a name. If a name is not available,
- * a `console.error()` is thrown and inter-store messaging is not setup properly.
- * @see reinitStore() for the 'hack' fix
- */
-@StoreConfig({ name: 'mindspace-io' })
-class StoreWithConfig<T> extends Store<T> {}
-
 // For server-side rendering: https://github.com/react-spring/zustand/pull/34
 const useIsoLayoutEffect = typeof window === 'undefined' ? useEffect : useLayoutEffect;
 const identity = (s: any) => s as any;
@@ -75,7 +67,7 @@ export function createStore<TState extends State>(
    * Note: Immer immutability is auto-applied via the `producerFn` configuration
    */
   const name = options.storeName || `ReactAkitStore${Math.random()}`;
-  const store = new StoreWithConfig<TState>({}, { producerFn: produce, name });
+  const store = new Store<TState>({}, { producerFn: produce, name });
   const query = new Query<TState>(store);
 
   /**
