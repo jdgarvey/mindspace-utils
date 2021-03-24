@@ -1,5 +1,5 @@
 import { produce } from 'immer';
-import { combineLatest } from 'rxjs';
+import { Observable, combineLatest } from 'rxjs';
 import { map } from 'rxjs/operators';
 
 import { useState, useEffect, useLayoutEffect } from 'react';
@@ -39,21 +39,27 @@ class StoreWithConfig<T> extends Store<T> {}
 
 // For server-side rendering: https://github.com/react-spring/zustand/pull/34
 const useIsoLayoutEffect = typeof window === 'undefined' ? useEffect : useLayoutEffect;
-const identity = (s) => s as any;
-const NOOP = () => {};
+const identity = (s: any) => s as any;
 
 /**
  * Create a store with specified state
  *
  * The store instances is actually a React hook with Store API added
  * All stores are decorated with Status state (isLoading, error, setIsLoading, and setError)
- * Return a UseStore hook that will return either all state or partial state based on passed selector.
  *
+ * @returns useStore: Hook that will emit either all state or partial state [based on passed selector].
  */
 export function createStore<TState extends State>(
   createState: StateCreator<TState>,
   options: StateCreatorOptions = {}
 ): UseStore<TState> {
+  /**
+   * Internal, startup queue for computed and watched properties
+   *
+   * NOTE: is currently only used during store startup configuration
+   */
+  const computed: Record<string, () => void> = {};
+
   /**
    * Internal Akita Store + Query instances
    * Note: Immer immutability is auto-applied via the `producerFn` configuration
@@ -61,7 +67,6 @@ export function createStore<TState extends State>(
   const name = options.storeName || `ReactAkitStore${Math.random()}`;
   const store = new StoreWithConfig<TState>({}, { producerFn: produce, name });
   const query = new Query<TState>(store);
-  const computed: Record<string, () => void> = {};
 
   /**
    * setIsLoading() + setError()
@@ -118,7 +123,8 @@ export function createStore<TState extends State>(
   ) => {
     const deferredSetup = () => {
       const makeQuery = (predicate) => query.select(predicate);
-      const source$ = combineLatest(property.selectors.map(makeQuery)).pipe(map(property.predicate));
+      const emitters: Observable<TState[any]>[] = property.selectors.map(makeQuery);
+      const source$ = combineLatest(emitters).pipe(map(property.predicate));
 
       source$.subscribe((computedValue: unknown) => {
         callAsync((value) => {
@@ -150,39 +156,36 @@ export function createStore<TState extends State>(
     computed[property] = deferredSetup;
   };
 
+  /**
+   * Activate all 'queued' computed/watched properties
+   */
   const registerComputedProperties = () => {
     Object.keys(computed).map((propertyName) => {
       const registerNow = computed[propertyName];
-      delete computed[propertyName];
-
       registerNow();
+
+      delete computed[propertyName];
     });
   };
 
+  /**
+   * Complete streams and close the store
+   */
   const destroy: Destroy = () => store.destroy();
 
   /**
    * Create the Store instance with desired API
-   * Create the immutable state using the 'createState()' callback factory
-   * Add status state and fix Akita 'storename' bug.
    */
   const storeAPI: StoreAPI<TState> = {
-    get: getState,
-    set: setState,
-    addComputedProperty: addComputedProperty,
-    watchProperty: watchProperty,
-    observe: subscribe,
-    destroy: destroy,
-    setIsLoading,
-    setError,
+    get: getState, // get immutable snapshot to state
+    set: setState, // apply changes to state
+    addComputedProperty: addComputedProperty, // compute property value from upstream changes
+    watchProperty: watchProperty, // watch single property for changes
+    observe: subscribe, // watch for changes WITHOUT trigger re-renders
+    destroy: destroy, // clean-up store, disconnect streams
+    setIsLoading, // easily set isLoading state
+    setError, // easily set error state
   };
-  const state = produce({}, () => createState(storeAPI));
-
-  reinitStore(store, name, {
-    ...state,
-    ...{ error: null, isLoading: false },
-  });
-  registerComputedProperties();
 
   /**
    * Internal utility methods for selectors
@@ -206,18 +209,19 @@ export function createStore<TState extends State>(
   };
 
   /**
-   * After the store has been created and initialized with api + state.
+   * userStore()
    *
-   * Developer will use this custom react hook to 'select' state data. This selection
-   * will re-emit data anytime the selected state changes.
+   * After the store has been created and initialized with api + state, this hoook
+   * is created. Developer will use this custom react hook to 'select' state data.
+   * The selected data sourcds will re-emit data after changes.
    *
-   * Here we build the custom hook to observe state or state slice
-   * Remit slice value when distinctly changed
-   * This hook is implicitly connected to its associated store
+   * This hook is implicitly connected to its associated [parent] store
    *
    * Warning!!
    *   1) Do not use same 'useStore' hook multiple times in the same component.
-   *   2) To extract multiple slices, use a single selector to return a hashmap or tuple
+   *   2) To extract multiple slices, use
+   *      a) a single selector to return a reponse (value, hashmap, or tuple)
+   *      b) an array of selectors [optimized approach] to return response
    */
   const useStore: any = <StateSlice>(
     selector?: StateSelector<TState, StateSlice> | StateSelectorList<TState, StateSlice>
@@ -231,10 +235,31 @@ export function createStore<TState extends State>(
       return () => destroy();
     }, [selector]);
 
-    return typeof slice == 'undefined' ? initial : slice;
+    return slice;
   };
 
-  return Object.assign(useStore, storeAPI); // Decorate hook function with API methods, public custom hook/store
+  /**
+   * Initialization of state management
+   * Create the immutable state using the 'createState()' callback factory
+   *
+   * - Reinitialize the internal store,
+   * - Register computed and watched properties
+   * - inject storeAPI
+   */
+  const onInit = () => {
+    const state = produce({}, () => ({
+      ...{ error: null, isLoading: false },
+      ...createState(storeAPI),
+    }));
+
+    reinitStore(store, name, state);
+    registerComputedProperties();
+
+    // Decorate hook function with API methods, public custom hook/store
+    return Object.assign(useStore, storeAPI);
+  };
+
+  return onInit();
 }
 
 // *******************************************************
@@ -261,6 +286,6 @@ function reinitStore(store: Store, name: string, state) {
 /**
  * Invoke the callback at the end of the microTask
  */
-function callAsync(callback: (value: any) => void, resolveWith: any) {
+function callAsync(callback: (value: unknown) => void, resolveWith: unknown) {
   Promise.resolve(resolveWith).then(callback);
 }
