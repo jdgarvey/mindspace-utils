@@ -1,9 +1,17 @@
 import { produce } from 'immer';
-import { Observable, combineLatest } from 'rxjs';
+import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 
 import { useState, useEffect, useLayoutEffect } from 'react';
-import { Query, Store, StoreConfigOptions, StoreConfig, UpdateStateCallback } from '@datorama/akita';
+import {
+  Query,
+  Store,
+  StoreConfigOptions,
+  StoreConfig,
+  UpdateStateCallback,
+  applyTransaction as batchAction,
+  combineQueries,
+} from '@datorama/akita';
 
 import { useObservable } from './useObservable';
 
@@ -14,6 +22,8 @@ import {
   StoreAPI,
   ComputedProperty,
   AddComputedProperty,
+  ApplyTransaction,
+  ApplyTransactionOptions,
   WatchProperty,
   State,
   StateCreator,
@@ -88,6 +98,19 @@ export function createStore<TState extends State>(
     store.update(!isCallback ? updateWithValue : (partial as UpdateStateCallback<TState>));
   };
 
+  const applyTransaction: ApplyTransaction<TState> = (
+    action: () => TState | void,
+    options?: ApplyTransactionOptions
+  ) => {
+    const msg = (phase) => `---- ${phase} applyTransaction() ----- `;
+    const log = (phase) => options?.enableLog && console.log(msg(phase));
+
+    log('start');
+    const response = batchAction(action as () => TState, options?.thisArg);
+    log('stop');
+
+    return response;
+  };
   /**
    * subscribe()
    * The subscribe function allows components to bind to a state-portion without forcing re-render on changes
@@ -124,7 +147,7 @@ export function createStore<TState extends State>(
     const deferredSetup = () => {
       const makeQuery = (predicate) => query.select(predicate);
       const emitters: Observable<TState[any]>[] = property.selectors.map(makeQuery);
-      const source$ = combineLatest(emitters).pipe(map(property.predicate));
+      const source$ = combineQueries(emitters).pipe(map(property.predicate));
 
       source$.subscribe((computedValue: unknown) => {
         callAsync((value) => {
@@ -179,6 +202,7 @@ export function createStore<TState extends State>(
   const storeAPI: StoreAPI<TState> = {
     get: getState, // get immutable snapshot to state
     set: setState, // apply changes to state
+    applyTransaction: applyTransaction, // enable batch changes to the state,
     addComputedProperty: addComputedProperty, // compute property value from upstream changes
     watchProperty: watchProperty, // watch single property for changes
     observe: subscribe, // watch for changes WITHOUT trigger re-renders
@@ -197,7 +221,7 @@ export function createStore<TState extends State>(
     selector: StateSelector<TState, StateSlice> | StateSelectorList<TState, StateSlice> = identity
   ) => {
     const list = selector instanceof Array ? <StateSelectorList<TState, StateSlice>>selector : [selector];
-    return list.length == 1 ? query.select(list[0]) : combineLatest(list.map((it) => query.select(it)));
+    return list.length == 1 ? query.select(list[0]) : combineQueries(list.map((it) => query.select(it)));
   };
   const getSliceValueFor = <StateSlice>(
     selector: StateSelector<TState, StateSlice> | StateSelectorList<TState, StateSlice> = identity

@@ -5,10 +5,7 @@ export const AsyncMessages: React.FC = () => {
   const state: MessagesState = useStore();
 
   return (
-    <div className="filteredEmails">
-      
-      
-      
+    <div className="sampleBox">
       {state.isLoading &&       
         
         <>

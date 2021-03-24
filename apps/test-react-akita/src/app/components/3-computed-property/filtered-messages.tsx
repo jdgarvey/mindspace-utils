@@ -8,8 +8,7 @@ export const FilteredMessages: React.FC = () => {
   const [searchCriteria, messages, updateFilterBy] = useStore(selectViewModel);
 
   return (
-    <div className="filteredEmails">
-
+    <div className="sampleBox">
       <div className="filterBy">
         <label htmlFor="filterBy"> Search for: </label>
         <input type="text" 
@@ -22,9 +21,7 @@ export const FilteredMessages: React.FC = () => {
       
       <ul>
         {messages.map((msg, i) => (
-          <li className="message" key={i}>
-           {msg}
-          </li>
+          <li className="message" key={i} dangerouslySetInnerHTML={{__html: msg}} />
         ))}
       </ul>
 

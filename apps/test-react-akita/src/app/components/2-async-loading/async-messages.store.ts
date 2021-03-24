@@ -43,7 +43,7 @@ export interface MessagesState extends State {
  *******************************************/
 
 
-export const useStore = createStore<MessagesState>(({set, setIsLoading }) => {
+export const useStore = createStore<MessagesState>(({set, setIsLoading, applyTransaction }) => {
   const service = new EmailService();
   const startCountdown = () => {
     const countDown = setInterval(() => {
@@ -59,18 +59,23 @@ export const useStore = createStore<MessagesState>(({set, setIsLoading }) => {
    * 3) updates countdown timer
    */
   const refresh = async () => {
-    setIsLoading();
-    set(s => { s.messages = [] });  
+
+    applyTransaction(() => {
+      setIsLoading();
+      set(s => { s.messages = [] });  
+    });
     
     const stopCountdown = startCountdown();
     const messages = await service.loadAll();
 
-    set(s => {
-      s.messages = messages;
-      s.isLoading = false;
-      s.timeToReady = 3;
-    })       
-    stopCountdown();
+    applyTransaction(() =>{
+      set(s => {
+        s.messages = messages;
+        s.isLoading = false;
+        s.timeToReady = 3;
+      })       
+      stopCountdown();
+    });
   };
 
   // Return state

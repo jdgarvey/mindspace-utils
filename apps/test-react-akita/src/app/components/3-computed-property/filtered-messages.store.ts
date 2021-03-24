@@ -93,7 +93,9 @@ function makefilteredMessages(): ComputedProperty<MessagesState, string[] | stri
   const onlyFilteredMessages = ([messages, filterBy]): string[] => {
     const criteria            = filterBy.toLowerCase();
     const containsFilterValue = (s:string) => (s.toLowerCase().indexOf(criteria) > -1);
-    return !!filterBy ? messages.filter(containsFilterValue) : [...messages];
+    const addMarkers          = (s:string) => s.replace(new RegExp(filterBy, "gi"), (match) => `<span class='match'>${match}</span>`);
+
+    return !!filterBy ? messages.filter(containsFilterValue).map(addMarkers) : [...messages];
   };
   return {
     name: 'filteredMessages',

@@ -56,8 +56,7 @@ export type ContentProps = {
 
 export const SimpleCounterContent: React.FC<ContentProps> = ({ visits, onIncrement, onDecrement }) => {
   return (
-    <div className="magicbox">
-      
+    <div className="sampleBox">
         <p>
           You have clicked the ▲ button <span className="count">{visits}</span> times!
         </p>

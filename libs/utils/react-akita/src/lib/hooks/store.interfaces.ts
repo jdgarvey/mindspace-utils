@@ -50,11 +50,19 @@ export type SetState<T extends State> = {
   <K extends keyof T>(partial: PartialState<T, K>, replace?: boolean): void;
 };
 export type GetState<T extends State> = () => T;
+
+export interface ApplyTransactionOptions {
+  enableLog?: boolean;
+  thisArg?: any;
+}
+export type ApplyTransaction<T extends State> = (action: () => T | void, options?: ApplyTransactionOptions) => T;
+
 export type Destroy = () => void;
 
 export interface StoreAPI<T extends State> {
   set: SetState<T>;
   get: GetState<T>;
+  applyTransaction: ApplyTransaction<T>;
   addComputedProperty: AddComputedProperty<T>;
   watchProperty: WatchProperty<T>;
   observe: Subscribe<T>;

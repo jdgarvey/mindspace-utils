@@ -8,7 +8,7 @@ export const QuestionAnswer: React.FC = () => {
   const [question, answer, updateQuestion] = useStore(selectViewModel);
 
   return (
-    <div className="filteredEmails  qa">
+    <div className="sampleBox">
       <p>
         Ask a yes/no question:
         <input value={question} onChange={e => updateQuestion(e.target.value)} />

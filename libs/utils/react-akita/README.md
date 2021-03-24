@@ -110,6 +110,9 @@ export interface StoreApi<T extends State> extends StatusAPI {
   set: SetState<T>;
   get: GetState<T>;
 
+  // to batch state changes
+  applyTransaction: ApplyTransaction<T>;
+
   // Used during store configuration
   addComputedProperty: AddComputedProperty<T>;
   watchProperty: WatchProperty<T>;

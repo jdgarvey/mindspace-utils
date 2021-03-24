@@ -1,62 +1,60 @@
-.magicbox {
-  padding: 15px;
-  padding-left: 25px;
-  min-height: 220px;
-  border: solid 1px burlywood;
-}
-
-.magicbox .count,
-.filteredEmails .count {
-  font-weight: bold;
-  color: white;
-  background-color: rgb(163, 43, 10);
-  margin: 3px;
-  padding: 3px;
-  padding-left: 5px;
-}
-
-.magicbox button:last-child {
-  margin-left: 20px;
-}
-
-.filteredEmails {
+.sampleBox {
   display: block;
   position: relative;
   padding: 15px;
+  padding-top: 60px;
   border: solid 1px burlywood;
   min-height: 220px;
-}
-.filteredEmails .filterBy {
-  margin-bottom: 30px;
+
+  button:last-child {
+    margin-left: 20px;
+  }
+
+  .count {
+    font-weight: normal;
+    color: white;
+    background-color: rgb(163, 43, 10);
+    margin: 3px;
+    padding: 3px;
+    padding-left: 5px;
+  }
+
+  .filterBy {
+    margin-bottom: 30px;
+  }
+
+  .message > .match {
+    background-color: rgb(160, 250, 178);
+    padding-top: 3px;
+    padding-bottom: 3px;
+  }
 }
 
 .sample-info {
   display: block;
   position: absolute;
+  font-weight: 600;
   top: 0;
   left: 0;
   min-width: 60px;
   min-height: 20px;
-  color: white;
-  background-color: rgb(35, 35, 35);
+  color: rgb(102, 70, 0);
+  background-color: #fff7cc;
+  border: 1px solid burlywood;
+  border-bottom: solid 0px burlywood;
   z-index: 999;
-  border-radius: 3px;
   font-size: 0.8em;
   padding: 4px 7px 4px 7px;
 
   a {
     &:visited,
     &:link {
-      color: white;
+      color: rgb(102, 70, 0);
     }
     &:hover {
-      color: greenyellow;
+      color: blue;
     }
   }
-}
-
-.filteredEmails .message span {
-  padding-right: 10px;
 }
 
 .grid-container {
@@ -84,6 +82,22 @@
   justify-content: space-around;
   column-gap: 10px;
   position: relative;
+
+  .tabItem {
+    overflow: hidden;
+    position: relative;
+  }
+
+  .tabItem > .description {
+    position: absolute;
+    top: 27px;
+    left: 0;
+    padding: 10px;
+    padding-top: 15px;
+    width: 100%;
+    background-color: #fff7cc;
+    border-bottom: 1px solid burlywood;
+  }
 }
 .content > .tabItem {
   display: block;
@@ -108,4 +122,11 @@ ul {
       padding-right: 4px;
     }
   }
+}
+
+input {
+  background-color: rgb(202, 239, 254);
+  padding: 3px;
+  border-radius: 4px;
+  margin-left: 5px;
 }

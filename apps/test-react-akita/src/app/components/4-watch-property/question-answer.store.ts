@@ -60,6 +60,7 @@ export const useStore = createStore<QAState>(({set, watchProperty}) => {
   }
 
   // While 'observe' also works, sometimes we just want to watch something
+  // Debounce user input (until idle) for 500ms
   watchProperty<QAState>("question", _.debounce(watchQuestion(set), 500));
 
   return state;
@@ -70,6 +71,7 @@ export const useStore = createStore<QAState>(({set, watchProperty}) => {
 // Private Utils
 // *************************************************
 
+const URL_WTF ='https://yesno.wtf/api'
 const WTF = {
   wait: 'Thinking...',
   hint: 'Questions only... which usually contain a question mark. ;-)',
@@ -81,6 +83,7 @@ const WTF = {
 function watchQuestion(set: SetState<QAState>) {
   // Provide a listener to handle changes to the question value
   return async function (question: string) {
+    const isQuestion = question.indexOf('?') > -1;
     const updateAnswer = (value: string) => {
       set((s:QAState) => {
         s.answer = value;
@@ -88,19 +91,19 @@ function watchQuestion(set: SetState<QAState>) {
     }
     updateAnswer(WTF.wait);
 
-    let message = WTF.hint;
-    if (question.indexOf('?') > -1) {      
+    if (isQuestion) {      
         try {
+          const response = await axios.get(URL_WTF);
+          updateAnswer(_.capitalize(response.data.answer));
 
-          const response = await axios.get('https://yesno.wtf/api');
-          message = _.capitalize(response.data.answer);
-
+          return;
+          
         }catch (error) {
-           message = `${WTF.error}: ${error}`;
+          updateAnswer(`${WTF.error}: ${error}`);
         }
     }
 
-    updateAnswer(message);
+    updateAnswer(WTF.hint);
     
   };
 }

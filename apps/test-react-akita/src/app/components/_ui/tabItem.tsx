@@ -4,17 +4,20 @@ const ROOT = 'https://github.com/ThomasBurleson/mindspace-utils/blob/master/apps
 
 export interface TabItemProps {
   url : string,
+  description: string
 }
 
-export const TabItem: React.FC<TabItemProps> = ({url, children}) => {
+export const TabItem: React.FC<TabItemProps> = ({url, description, children}) => {
   const name = url.match(/[^\/]+(?=$)/)[0]
   return (
+
     <div className="tabItem">
       <div className="sample-info">
         <a href={`${ROOT}/${url}`} target="_blank">
           {name}
         </a>
       </div>
+      <div className="description"> {description} </div>
       { children }
     </div>
       

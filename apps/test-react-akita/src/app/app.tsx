@@ -11,7 +11,7 @@ import { QuestionAnswer } from './components/4-watch-property/question-answer';
 import './app.scss';
 
 // ************************************
-
+const TITLE = 'Demonstrate use of ';
 const App: React.FC = () => {
   return (
     <div className="grid-container">
@@ -19,16 +19,19 @@ const App: React.FC = () => {
         <Header />
       </div>
       <div className="content">
-        <TabItem url="1-simple-counter/simple-counter.tsx">
+        <TabItem url="1-simple-counter/simple-counter.tsx" description={`${TITLE} simple state management`}>
           <SimpleCounter />
         </TabItem>
-        <TabItem url="2-async-loading/async-email.tsx">
+        <TabItem
+          url="2-async-loading/async-messages.tsx"
+          description={`${TITLE}  async loading, status, and transactions`}
+        >
           <AsyncMessages />
         </TabItem>
-        <TabItem url="3-computed-property/filtered-messages.tsx">
+        <TabItem url="3-computed-property/filtered-messages.tsx" description={`${TITLE}  'computed' properties`}>
           <FilteredMessages />
         </TabItem>
-        <TabItem url="4-watch-property/question-answer.tsx">
+        <TabItem url="4-watch-property/question-answer.tsx" description={`${TITLE}  'watched' properties`}>
           <QuestionAnswer />
         </TabItem>
       </div>
