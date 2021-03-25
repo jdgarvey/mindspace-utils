@@ -4,6 +4,7 @@
 echo 'Building @mindspace-io/react-akita'
 nx build utils-react-akita 
 cp ./libs/utils/react-akita/README.md ./dist/libs/utils/react-akita/README.md
+cp ./LICENSE ./dist/libs/utils/react-akita/LICENSE
 nx test utils-react-akita
 echo ''
 echo 'Preparing to npm deploy updates to @mindspace-io/react-akita'
