@@ -2,7 +2,7 @@
 
 ![react-akita splash](https://user-images.githubusercontent.com/210413/112369582-54cd4600-8caa-11eb-9c7d-54ccfb7e0277.png)
 
-> Just install `@mindspace-io/react-akita` to use.
+> Just install `@mindspace-io/react` to use.
 
 ## Purpose
 
@@ -35,7 +35,7 @@ The beauty of the `createStore()` is that a factory function is used to build th
 And the factory function is actually provided the [`set`, `get`, ...] store api:
 
 ```ts
-import create from '@mindspace-io/react-akita';
+import create from '@mindspace-io/react';
 
 // Define store structure
 interface StoreState {
@@ -215,7 +215,7 @@ A [CodeSandbox demo](https://codesandbox.io/s/state-w-react-akita-createstore-it
 Just install with:
 
 ```terminal
-npm install @mindspace-io/react-akita
+npm install @mindspace-io/react
 ```
 
-Under the hood, this library uses `immer`, `@datorama/akita`, and `rxjs`; these will be automatically installed along with `@mindspace-io/react-akita`.
+Under the hood, this library uses `immer`, `@datorama/akita`, and `rxjs`; these will be automatically installed along with `@mindspace-io/react`.

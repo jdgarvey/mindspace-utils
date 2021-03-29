@@ -38,9 +38,10 @@ export interface WatchProperty<T extends State> {
 
 export interface ComputedProperty<T extends State, K, U> {
   name: string;
-  selectors: StateSelectorList<T, K>[];
-  predicate: (values: K[]) => U;
+  selector: StateSelectorList<T, K> | StateSelector<T, K>;
+  transform: (values: K | K[]) => U;
 }
+
 // Add computed property to the store
 export type AddComputedProperty<T extends State> = {
   <K, U extends unknown>(property: ComputedProperty<T, K, U>, target?: T): T;

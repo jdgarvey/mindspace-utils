@@ -26,18 +26,15 @@
     "utils-react": {
       "tags": ["type:utils", "scope:react"]
     },
-    "utils-react-akita": {
-      "tags": ["type:utils", "scope:akita"]
-    },
     "utils-angular": {
       "tags": ["type:util", "scope:angular"]
     },
-    "test-react-akita": {
+    "playground-react": {
       "tags": []
     },
-    "test-react-akita-e2e": {
+    "playground-react-e2e": {
       "tags": [],
-      "implicitDependencies": ["test-react-akita"]
+      "implicitDependencies": ["playground-react"]
     }
   }
 }

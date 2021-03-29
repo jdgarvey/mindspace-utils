@@ -138,8 +138,9 @@ export function createStore<TState extends State>(
   ) => {
     const deferredSetup = () => {
       const makeQuery = (predicate) => query.select(predicate);
-      const emitters: Observable<TState[any]>[] = property.selectors.map(makeQuery);
-      const source$ = combineQueries(emitters).pipe(map(property.predicate));
+      const selectors = normalizeSelector(property.selector);
+      const emitters: Observable<any>[] = selectors.map(makeQuery);
+      const source$ = combineQueries(emitters).pipe(map(property.transform));
 
       source$.subscribe((computedValue: unknown) => {
         callAsync((value) => {
@@ -304,4 +305,14 @@ function reinitStore(store: Store, name: string, state) {
  */
 function callAsync(callback: (value: unknown) => void, resolveWith: unknown) {
   Promise.resolve(resolveWith).then(callback);
+}
+
+/**
+ * Ensure that a 'list' of selectors is available for upcoming iteration
+ */
+function normalizeSelector<T extends State, K>(
+  selectors: StateSelectorList<T, K> | StateSelector<T, K>
+): StateSelectorList<T, K> {
+  const isArray = selectors instanceof Array;
+  return isArray ? (selectors as StateSelectorList<T, K>) : [selectors as StateSelector<T, K>];
 }

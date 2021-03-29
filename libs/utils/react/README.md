@@ -4,7 +4,13 @@
 
 ## Purpose
 
-This library provides TypeScript utilities for React (16.x or higher) developers. Click the links below to view the detailed README(s) for each technology item.
+This library provides TypeScript utilities for React (16.x or higher) developers.
+
+- **True** Dependency Injection (DI)
+- `useObservable()` for RxJS streams
+- State Management using `createStore()` and `useStore()`
+
+Click the links below to view the detailed README(s) for each technology item.
 
 ---
 

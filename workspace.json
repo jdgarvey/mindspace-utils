@@ -3,7 +3,7 @@
   "cli": {
     "defaultCollection": "@nrwl/react"
   },
-  "defaultProject": "test-react-akita",
+  "defaultProject": "playground-react",
   "generators": {
     "@nrwl/react": {
       "application": {
@@ -62,47 +62,6 @@
         }
       }
     },
-    "utils-react-akita": {
-      "root": "libs/utils/react-akita",
-      "sourceRoot": "libs/utils/react-akita/src",
-      "projectType": "library",
-      "targets": {
-        "build": {
-          "executor": "@nrwl/web:package",
-          "outputs": ["{options.outputPath}"],
-          "options": {
-            "outputPath": "dist/libs/utils/react-akita",
-            "tsConfig": "libs/utils/react-akita/tsconfig.lib.json",
-            "project": "libs/utils/react-akita/package.json",
-            "entryFile": "libs/utils/react-akita/src/index.ts",
-            "external": ["react", "react-dom"],
-            "babelConfig": "@nrwl/react/plugins/bundle-babel",
-            "rollupConfig": "@nrwl/react/plugins/bundle-rollup",
-            "assets": [
-              {
-                "glob": "README.md",
-                "input": ".",
-                "output": "."
-              }
-            ]
-          }
-        },
-        "lint": {
-          "executor": "@nrwl/linter:eslint",
-          "options": {
-            "lintFilePatterns": ["libs/utils/react-akita/**/*.{ts,tsx,js,jsx}"]
-          }
-        },
-        "test": {
-          "executor": "@nrwl/jest:jest",
-          "outputs": ["coverage/libs/utils/react-akita"],
-          "options": {
-            "jestConfig": "libs/utils/react-akita/jest.config.js",
-            "passWithNoTests": true
-          }
-        }
-      }
-    },
     "utils-angular": {
       "projectType": "library",
       "root": "libs/utils/angular",
@@ -145,21 +104,21 @@
         }
       }
     },
-    "test-react-akita": {
-      "root": "apps/test-react-akita",
-      "sourceRoot": "apps/test-react-akita/src",
+    "playground-react": {
+      "root": "apps/playground-react",
+      "sourceRoot": "apps/playground-react/src",
       "projectType": "application",
       "targets": {
         "build": {
           "executor": "@nrwl/web:build",
           "outputs": ["{options.outputPath}"],
           "options": {
-            "outputPath": "dist/apps/test-react-akita",
-            "index": "apps/test-react-akita/src/index.html",
-            "main": "apps/test-react-akita/src/main.tsx",
-            "polyfills": "apps/test-react-akita/src/polyfills.ts",
-            "tsConfig": "apps/test-react-akita/tsconfig.app.json",
-            "assets": ["apps/test-react-akita/src/favicon.ico", "apps/test-react-akita/src/assets"],
+            "outputPath": "dist/apps/playground-react",
+            "index": "apps/playground-react/src/index.html",
+            "main": "apps/playground-react/src/main.tsx",
+            "polyfills": "apps/playground-react/src/polyfills.ts",
+            "tsConfig": "apps/playground-react/tsconfig.app.json",
+            "assets": ["apps/playground-react/src/favicon.ico", "apps/playground-react/src/assets"],
             "styles": [],
             "scripts": [],
             "webpackConfig": "@nrwl/react/plugins/webpack"
@@ -168,8 +127,8 @@
             "production": {
               "fileReplacements": [
                 {
-                  "replace": "apps/test-react-akita/src/environments/environment.ts",
-                  "with": "apps/test-react-akita/src/environments/environment.prod.ts"
+                  "replace": "apps/playground-react/src/environments/environment.ts",
+                  "with": "apps/playground-react/src/environments/environment.prod.ts"
                 }
               ],
               "optimization": true,
@@ -192,52 +151,52 @@
         "serve": {
           "executor": "@nrwl/web:dev-server",
           "options": {
-            "buildTarget": "test-react-akita:build"
+            "buildTarget": "playground-react:build"
           },
           "configurations": {
             "production": {
-              "buildTarget": "test-react-akita:build:production"
+              "buildTarget": "playground-react:build:production"
             }
           }
         },
         "lint": {
           "executor": "@nrwl/linter:eslint",
           "options": {
-            "lintFilePatterns": ["apps/test-react-akita/**/*.{ts,tsx,js,jsx}"]
+            "lintFilePatterns": ["apps/playground-react/**/*.{ts,tsx,js,jsx}"]
           }
         },
         "test": {
           "executor": "@nrwl/jest:jest",
-          "outputs": ["coverage/apps/test-react-akita"],
+          "outputs": ["coverage/apps/playground-react"],
           "options": {
-            "jestConfig": "apps/test-react-akita/jest.config.js",
+            "jestConfig": "apps/playground-react/jest.config.js",
             "passWithNoTests": true
           }
         }
       }
     },
-    "test-react-akita-e2e": {
-      "root": "apps/test-react-akita-e2e",
-      "sourceRoot": "apps/test-react-akita-e2e/src",
+    "playground-react-e2e": {
+      "root": "apps/playground-react-e2e",
+      "sourceRoot": "apps/playground-react-e2e/src",
       "projectType": "application",
       "targets": {
         "e2e": {
           "executor": "@nrwl/cypress:cypress",
           "options": {
-            "cypressConfig": "apps/test-react-akita-e2e/cypress.json",
-            "tsConfig": "apps/test-react-akita-e2e/tsconfig.e2e.json",
-            "devServerTarget": "test-react-akita:serve"
+            "cypressConfig": "apps/playground-react-e2e/cypress.json",
+            "tsConfig": "apps/playground-react-e2e/tsconfig.e2e.json",
+            "devServerTarget": "playground-react:serve"
           },
           "configurations": {
             "production": {
-              "devServerTarget": "test-react-akita:serve:production"
+              "devServerTarget": "playground-react:serve:production"
             }
           }
         },
         "lint": {
           "executor": "@nrwl/linter:eslint",
           "options": {
-            "lintFilePatterns": ["apps/test-react-akita-e2e/**/*.{js,ts}"]
+            "lintFilePatterns": ["apps/playground-react-e2e/**/*.{js,ts}"]
           }
         }
       }
