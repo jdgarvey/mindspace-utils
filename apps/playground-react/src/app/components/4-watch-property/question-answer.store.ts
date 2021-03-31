@@ -42,7 +42,7 @@ export const selectViewModel: StateSelector<QAState, ViewModel> = (s: QAState) =
  *******************************************/
 
 export const useStore = createStore<QAState>(({ set, watchProperty }) => {
-  const state = {
+  const store = {
     // data
 
     question: '',
@@ -58,10 +58,12 @@ export const useStore = createStore<QAState>(({ set, watchProperty }) => {
   };
 
   // While 'observe' also works, sometimes we just want to watch something
-  // Debounce user input (until idle) for 500ms
-  watchProperty<QAState>('question', _.debounce(watchQuestion(set), 500));
+  // Note: let's debounce user input (until idle) for 500ms
 
-  return state;
+  const onQuestionChange = _.debounce(watchQuestion(set), 500);
+  watchProperty<QAState>(store, 'question', onQuestionChange);
+
+  return store;
 });
 
 // *************************************************

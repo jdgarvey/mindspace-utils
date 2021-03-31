@@ -1,6 +1,6 @@
 import { produce } from 'immer';
-import { Observable } from 'rxjs';
-import { map } from 'rxjs/operators';
+import { Observable, Subscriber, Subscription } from 'rxjs';
+import { map, debounceTime } from 'rxjs/operators';
 
 import { useState, useEffect, useLayoutEffect } from 'react';
 import {
@@ -20,6 +20,7 @@ import {
   GetState,
   SetState,
   StoreAPI,
+  HookAPI,
   ComputedProperty,
   AddComputedProperty,
   ApplyTransaction,
@@ -60,12 +61,13 @@ export function createStore<TState extends State>(
    *
    * NOTE: is currently only used during store startup configuration
    */
-  const computed: Record<string, () => void> = {};
-
+  const computed: Record<string, (() => Unsubscribe) | (() => void)> = {};
   /**
    * Internal Akita Store + Query instances
    * Note: Immer immutability is auto-applied via the `producerFn` configuration
    */
+  let initialized = false;
+
   const name = options.storeName || `ReactAkitStore${Math.random()}`;
   const store = new Store<TState>({}, { producerFn: produce, name });
   const query = new Query<TState>(store);
@@ -128,48 +130,61 @@ export function createStore<TState extends State>(
    * This method is used inside createStore() to configure watches during state
    * initialization.
    *
-   * NOTE: since the store/query are not yet ready, we 'queue' these requests
+   * NOTE: At this point, the store/query are not yet ready!! we 'queue' these requests
    *       and later in `registerComputedProperties()` we finish the setup
    *       for all computed properties
    */
   const addComputedProperty: AddComputedProperty<TState> = <K extends any, U>(
-    property: ComputedProperty<TState, K, U>,
-    target?: TState
+    store: TState,
+    property: ComputedProperty<TState, K, U>
   ) => {
     const deferredSetup = () => {
-      const makeQuery = (predicate) => query.select(predicate);
-      const selectors = normalizeSelector(property.selector);
-      const emitters: Observable<any>[] = selectors.map(makeQuery);
-      const source$ = combineQueries(emitters).pipe(map(property.transform));
+      validateComputedProperty(store, property);
 
-      source$.subscribe((computedValue: unknown) => {
-        callAsync((value) => {
-          setState((s) => ({ ...s, ...{ [property.name]: value } }));
-        }, computedValue);
-      });
+      const makeQuery = (predicate) => query.select(predicate);
+      const selectors = normalizeSelector(property.selectors);
+      const emitters: Observable<any>[] = selectors.map(makeQuery);
+      const source$ = emitters.length > 1 ? combineQueries(emitters) : emitters[0];
+      const subscription = source$
+        .pipe(map(property.transform), debounceTime(1))
+        .subscribe((computedValue: unknown) => {
+          setState((s) => ({ ...s, [property.name]: computedValue }));
+        });
+
+      return () => subscription.unsubscribe();
     };
 
-    computed[property.name] = deferredSetup;
-    return target;
+    computed[property.name] = !initialized ? deferredSetup : deferredSetup();
+
+    return store;
   };
 
   /**
    * Watch for changes in a specific property and then notify 'listener'
    * This method is used inside createStore() to configure watches during state
    * initialization.
+   *
+   * NOTE: Unlike observe() which does NOT trigger component rerenders, the 'listener'
+   *       has access to `set`; which (if used) will trigger rerenders
    */
   const watchProperty: WatchProperty<TState> = <StateSlice>(
+    store: TState,
     property: string,
     listener: StateSliceListener<StateSlice>
   ) => {
     const deferredSetup = () => {
-      const onNext = (s: TState & StateSlice) => callAsync(listener, s);
-      const selector = (s: TState) => s[property];
-      const watcher = query.select(selector).subscribe(onNext);
-      return () => watcher.unsubscribe();
+      if (validateWatchedProperty(store, property)) {
+        const selector = (s: TState) => s[property];
+        const source$ = query.select(selector).pipe(debounceTime(1));
+        const watcher = source$.subscribe(listener);
+
+        return () => watcher.unsubscribe();
+      }
     };
 
-    computed[property] = deferredSetup;
+    computed[property] = !initialized ? deferredSetup : deferredSetup();
+
+    return store;
   };
 
   /**
@@ -178,16 +193,20 @@ export function createStore<TState extends State>(
   const registerComputedProperties = () => {
     Object.keys(computed).map((propertyName) => {
       const registerNow = computed[propertyName];
-      registerNow();
-
-      delete computed[propertyName];
+      computed[propertyName] = registerNow() as Unsubscribe;
     });
   };
 
   /**
    * Complete streams and close the store
    */
-  const destroy: Destroy = () => store.destroy();
+  const destroy: Destroy = () => {
+    Object.keys(computed).map((propertyName) => {
+      const unsubscribe = computed[propertyName] as Unsubscribe;
+      unsubscribe();
+    });
+    store.destroy();
+  };
 
   /**
    * Create the Store instance with desired API
@@ -198,10 +217,13 @@ export function createStore<TState extends State>(
     applyTransaction: applyTransaction, // enable batch changes to the state,
     addComputedProperty: addComputedProperty, // compute property value from upstream changes
     watchProperty: watchProperty, // watch single property for changes
-    observe: subscribe, // watch for changes WITHOUT trigger re-renders
-    destroy: destroy, // clean-up store, disconnect streams
     setIsLoading, // easily set isLoading state
     setError, // easily set error state
+  };
+
+  const hookAPI: HookAPI<TState> = {
+    observe: subscribe, // watch for changes WITHOUT trigger re-renders
+    destroy: destroy, // clean-up store, disconnect streams
   };
 
   /**
@@ -266,14 +288,16 @@ export function createStore<TState extends State>(
   const onInit = () => {
     const state = produce({}, () => ({
       ...{ error: null, isLoading: false },
-      ...createState(storeAPI),
+      ...createState({ ...storeAPI, ...hookAPI }),
     }));
 
     reinitStore(store, name, state);
     registerComputedProperties();
 
+    initialized = true;
+
     // Decorate hook function with API methods, public custom hook/store
-    return Object.assign(useStore, storeAPI);
+    return Object.assign(useStore, hookAPI);
   };
 
   return onInit();
@@ -301,13 +325,6 @@ function reinitStore(store: Store, name: string, state) {
 }
 
 /**
- * Invoke the callback at the end of the microTask
- */
-function callAsync(callback: (value: unknown) => void, resolveWith: unknown) {
-  Promise.resolve(resolveWith).then(callback);
-}
-
-/**
  * Ensure that a 'list' of selectors is available for upcoming iteration
  */
 function normalizeSelector<T extends State, K>(
@@ -315,4 +332,36 @@ function normalizeSelector<T extends State, K>(
 ): StateSelectorList<T, K> {
   const isArray = selectors instanceof Array;
   return isArray ? (selectors as StateSelectorList<T, K>) : [selectors as StateSelector<T, K>];
+}
+
+/**
+ * Computed property validation
+ *  - is the property defined in the state (eg should have a placeholder starting value)
+ *  - are you using 2 or more state selectors
+ */
+function validateComputedProperty<T extends State, K extends any, U>(store: T, property: ComputedProperty<T, K, U>) {
+  if (validateWatchedProperty(store, property.name, 'ComputedProperty')) {
+    const selectors = normalizeSelector(property.selectors);
+    if (selectors.length < 2) {
+      console.warn(`
+        ComputedProperty '${property.name}' is used to derive a new property value from 2 or more state properties. 
+        For distinct, memoized computations, your 'ComputedProperty::selectors' _should_ specify 2 or more selectors .
+      `);
+    }
+  }
+}
+
+/**
+ * Computed property validation
+ *  - is the property defined in the state (eg should have a placeholder starting value)
+ *  - are you using 2 or more state selectors
+ */
+function validateWatchedProperty<T extends State>(store: T, name: string, fieldType = 'WatchProperty') {
+  const hasProperty = store.hasOwnProperty(name);
+  if (!hasProperty) {
+    console.error(`
+      ${fieldType} '${name}' is not a valid property in your store. 
+    `);
+  }
+  return hasProperty;
 }

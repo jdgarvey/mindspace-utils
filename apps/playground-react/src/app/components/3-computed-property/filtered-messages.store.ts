@@ -47,7 +47,7 @@ export const selectViewModel = <StateSelectorList<MessagesState, ViewModel>>[
  *******************************************/
 
 export const useStore = createStore<MessagesState>(({ set, addComputedProperty }) => {
-  const state = {
+  const store = {
     // data
 
     filterBy: '',
@@ -62,14 +62,14 @@ export const useStore = createStore<MessagesState>(({ set, addComputedProperty }
     },
 
     // Computed properties
-    // NOTE: these must be initializaed in state
+    // NOTE: these **must** be initializaed in state
 
     filteredMessages: [],
   };
 
-  addComputedProperty(makefilteredMessages());
+  addComputedProperty(store, makefilteredMessages());
 
-  return state;
+  return store;
 });
 
 // *************************************************
@@ -93,7 +93,28 @@ function makefilteredMessages(): ComputedProperty<MessagesState, string[] | stri
   };
   return {
     name: 'filteredMessages',
-    selector: [(s: MessagesState) => s.messages, (s: MessagesState) => s.filterBy],
+    selectors: [(s: MessagesState) => s.messages, (s: MessagesState) => s.filterBy],
+    transform: onlyFilteredMessages,
+  };
+}
+
+/**
+ * Alternate computed property using one (1) single, selector.
+ * This is not optimized for performance and `createStore()` will issue a warning!
+ */
+function makefilteredMessages_v2(): ComputedProperty<MessagesState, [string[], string], string[]> {
+  // Note: onlyFilteredMessages() params depend upon the selector(s) defined!
+  const onlyFilteredMessages = ([messages, filterBy]): string[] => {
+    const criteria = filterBy.toLowerCase();
+    const containsFilterValue = (s: string) => s.toLowerCase().indexOf(criteria) > -1;
+    const addMarkers = (s: string) =>
+      s.replace(new RegExp(filterBy, 'gi'), (match) => `<span class='match'>${match}</span>`);
+
+    return !!filterBy ? messages.filter(containsFilterValue).map(addMarkers) : [...messages];
+  };
+  return {
+    name: 'filteredMessages',
+    selectors: (s: MessagesState) => [s.messages, s.filterBy],
     transform: onlyFilteredMessages,
   };
 }

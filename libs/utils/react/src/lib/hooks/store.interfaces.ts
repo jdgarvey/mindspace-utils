@@ -33,18 +33,18 @@ export interface Subscribe<T extends State> {
   <StateSlice>(listener: StateSliceListener<StateSlice>, selector?: StateSelector<T, StateSlice>): Unsubscribe;
 }
 export interface WatchProperty<T extends State> {
-  <StateSlice>(propertyName: string, listener: StateSliceListener<StateSlice>): void;
+  <StateSlice>(store: T, propertyName: string, listener: StateSliceListener<StateSlice>): T;
 }
 
 export interface ComputedProperty<T extends State, K, U> {
-  name: string;
-  selector: StateSelectorList<T, K> | StateSelector<T, K>;
-  transform: (values: K | K[]) => U;
+  name: string; // name of computed property
+  selectors: StateSelectorList<T, K> | StateSelector<T, K>; // single or multiple selectors
+  transform: (values: K[] | K) => U; // internally uses RxJS combineLatest() operator
 }
 
 // Add computed property to the store
 export type AddComputedProperty<T extends State> = {
-  <K, U extends unknown>(property: ComputedProperty<T, K, U>, target?: T): T;
+  <K, U extends unknown>(store: T, property: ComputedProperty<T, K, U>): T;
 };
 
 export type SetState<T extends State> = {
@@ -60,14 +60,24 @@ export type ApplyTransaction<T extends State> = (action: () => T | void, options
 
 export type Destroy = () => void;
 
+/**
+ * The useStore hook is decorated with only two (2) accessible API
+ * calls: observe() and destroy()
+ */
+export interface HookAPI<T extends State> {
+  observe: Subscribe<T>;
+  destroy: Destroy;
+}
+
+/**
+ * This API is accessible ONLY within the createStore(<createState factory>)
+ */
 export interface StoreAPI<T extends State> {
   set: SetState<T>;
   get: GetState<T>;
   applyTransaction: ApplyTransaction<T>;
   addComputedProperty: AddComputedProperty<T>;
   watchProperty: WatchProperty<T>;
-  observe: Subscribe<T>;
-  destroy: Destroy;
   setIsLoading: SetLoading;
   setError: SetError;
 }
@@ -81,7 +91,7 @@ export type StateCreator<T extends State> = (store: StoreAPI<T>) => T;
 /**
  * Interface for the custom hook published from calls to `createStore()`
  */
-export interface UseStore<T extends State> extends StoreAPI<T> {
+export interface UseStore<T extends State> extends HookAPI<T> {
   (): T;
   <U>(selector?: StateSelector<T, U> | StateSelectorList<T, U>): U;
 }

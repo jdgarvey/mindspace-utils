@@ -4,7 +4,7 @@ import { renderHook, act } from '@testing-library/react-hooks';
 // import * as matchers from 'jest-immutable-matchers';
 // These ^ matchers do not work with Immer; so we must manually check immutability
 
-import { StateSelector, UseStore, State } from './store.interfaces';
+import { StateSelector, UseStore, State, ComputedProperty, Unsubscribe, StoreAPI, GetState } from './store.interfaces';
 import { createStore } from './useStore';
 
 // ************************************
@@ -15,7 +15,10 @@ type MessageState = {
   messages?: string[];
   numViews?: number;
   incrementCount?: () => void;
-  saveMessages?: (list: string[]) => string[];
+  saveMessages?: (list: string[]) => void;
+
+  // Computed
+  numMessages?: number;
 };
 
 interface EmailState extends State {
@@ -42,10 +45,6 @@ describe('UseStore state management', () => {
 
       expect(useStore).toBeTruthy();
       // Check API
-      expect(useStore.setIsLoading).toBeTruthy();
-      expect(useStore.setError).toBeTruthy();
-      expect(useStore.get).toBeTruthy();
-      expect(useStore.set).toBeTruthy();
       expect(useStore.observe).toBeTruthy();
       expect(useStore.destroy).toBeTruthy();
     });
@@ -82,30 +81,32 @@ describe('UseStore state management', () => {
     });
 
     it('should create a store and subscribe for partial slice of state', () => {
-      const store = createStore<EmailState>(({ set }) => ({
-        emails: ['ThomasBurleson@gmail.com'],
-        saveEmails: (emails) => set({ emails }),
-      }));
-      const api: EmailState = store.get();
-
+      let store: EmailState;
       let emails: string[] = undefined;
 
+      const hook = createStore<EmailState>(({ set }) => {
+        return (store = {
+          emails: ['ThomasBurleson@gmail.com'],
+          saveEmails: (emails) => set({ emails }),
+        });
+      });
+
       // Subscribe to all state changes
-      const unsubscribe = store.observe<string[]>(
+      const unsubscribe = hook.observe<string[]>(
         source => { emails = source }, // prettier-ignore
         (s) => s.emails
       );
 
       expect(emails.length).toBe(1);
       expect(emails[0]).toBe('ThomasBurleson@gmail.com');
-      expect(api.saveEmails).toBeDefined();
+      expect(store.saveEmails).toBeDefined();
 
-      api.saveEmails([]);
+      store.saveEmails([]);
       expect(emails.length).toBe(0);
 
       unsubscribe(); // ignore future state changes
 
-      api.saveEmails(['ThomasBurleson@gmail.com']);
+      store.saveEmails(['ThomasBurleson@gmail.com']);
       expect(emails.length).toBe(0);
     });
   });
@@ -185,20 +186,25 @@ describe('UseStore state management', () => {
     });
 
     it('update state with partial selector; confirm with getState()', () => {
-      const useStore = createStore<MessageState>(({set}) => ({  
-        messages: [],         
-        saveMessages: (v) => v ,
-        numViews: 0,
-        incrementCount: () => set((s: MessageState) => ({ numViews: s.numViews + 1 }))
-      })); // prettier-ignore
-      const state = useStore.get();
-      expect(state.numViews).toBe(0);
+      let store: MessageState;
+      let getState: GetState<MessageState>;
+      const hook = createStore<MessageState>(({set,get}) => {
+        getState = get;
+        return store = ({  
+          numViews: 0,
+          messages: [],         
+          saveMessages: (v) => v ,          
+          incrementCount: () => set((s: MessageState) => ({ numViews: s.numViews + 1 }))
+        });
+      }); // prettier-ignore
+
+      expect(store.numViews).toBe(0);
 
       act(() => {
-        state.incrementCount();
+        store.incrementCount();
       });
 
-      const updated = useStore.get();
+      const updated = getState();
       expect(updated.numViews).toBe(1);
     });
 
@@ -237,13 +243,14 @@ describe('UseStore state management', () => {
   });
 
   describe('enforces immutability', () => {
-    beforeEach(() => {
-      // jest.addMatchers(matchers);
-    });
-
     it('should create immutable state', () => {
-      const useStore = createStore<MessageState>(({set}) => ({ messages: [], saveMessages: (v) => v })); // prettier-ignore
-      const state = useStore.get();
+      let getState: GetState<MessageState>;
+      const useStore = createStore<MessageState>(({set, get}) => {
+        getState = get;
+        return ({ messages: [], saveMessages: (v) => v });
+      }); // prettier-ignore
+
+      const state = getState();
       const origSaveMessages = state.saveMessages;
       const origMessages = state.messages;
 
@@ -287,4 +294,130 @@ describe('UseStore state management', () => {
       expect(messages.length).toBe(0);
     });
   });
+
+  describe('with Computed properties', () => {
+    let useStore;
+    let enableWarnings;
+    let watchedCounter = 0;
+    let getState: GetState<MessageState>;
+
+    beforeEach(() => {
+      enableWarnings = silentWarnings();
+      console.warn = () => {};
+
+      useStore = createStore<MessageState>(({ set, get, addComputedProperty, watchProperty }) => {
+        getState = get;
+
+        const store = {
+          numViews: 1,
+          numMessages: 0,
+          messages: ['Message #1', 'Message #2'],
+          saveMessages: (v: string[]) =>
+            set((s) => {
+              s.messages = [...s.messages, ...v];
+            }),
+          incrementCount: () =>
+            set((s) => {
+              s.numViews += 1;
+            }),
+        };
+
+        addComputedProperty(store, {
+          name: 'numMessages',
+          selectors: (s: MessageState) => s.messages,
+          transform: (messages: string[]) => {
+            return messages.length;
+          },
+        });
+
+        watchProperty(store, 'messages', () => {
+          watchedCounter += 1;
+        });
+
+        return store;
+      });
+    });
+
+    afterEach(() => {
+      watchedCounter = 0;
+      useStore.destroy();
+      enableWarnings();
+    });
+
+    it('should access initialized computed properties', () => {
+      expect(getState().numMessages).toBe(0);
+    });
+
+    it('should access rendered async computed properties', async () => {
+      const { result, waitForNextUpdate } = renderHook<UseStore<MessageState>, MessageState>(useStore);
+
+      // need to wait for computed property async initialization
+      await waitForNextUpdate();
+
+      expect(result.current.numViews).toBe(1);
+      expect(result.current.numMessages).toBe(2);
+
+      act(() => {
+        // Change that DOES trigger the computed property
+        result.current.saveMessages(['Test Message #3', 'Test Message #4']);
+      });
+
+      // need to wait for computed property async change after `saveMessages()`
+      await waitForNextUpdate();
+
+      expect(result.current.numViews).toBe(1);
+      expect(result.current.numMessages).toBe(4);
+
+      act(() => {
+        // Change that does NOT affect the computed property
+        result.current.incrementCount();
+      });
+
+      expect(result.current.numViews).toBe(2);
+      expect(result.current.numMessages).toBe(4);
+    });
+
+    it('should access handle watched properties', async () => {
+      const { result, waitForNextUpdate } = renderHook<UseStore<MessageState>, MessageState>(useStore);
+
+      // need to wait for computed property async initialization
+      await waitForNextUpdate();
+
+      expect(result.current.numMessages).toBe(2);
+      expect(watchedCounter).toBe(1);
+
+      act(() => {
+        // Change that DOES trigger the computed property
+        result.current.saveMessages(['Test Message #3', 'Test Message #4']);
+      });
+
+      // need to wait for computed property async change after `saveMessages()`
+      await waitForNextUpdate();
+
+      expect(result.current.numMessages).toBe(4);
+      expect(watchedCounter).toBe(2);
+
+      act(() => {
+        // Change that does NOT affect the computed property
+        result.current.incrementCount();
+      });
+
+      expect(result.current.numMessages).toBe(4);
+      expect(watchedCounter).toBe(2);
+    });
+  });
 });
+
+/**
+ * Computed and Watched property setup will issue
+ * warnings if the selectors are not optimized.
+ *
+ * For testing, we want to silence this output.
+ */
+function silentWarnings() {
+  const original = console.warn;
+  console.warn = () => {};
+  return () => {
+    console.warn = original;
+  };
+}
