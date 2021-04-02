@@ -1,5 +1,5 @@
 import { produce } from 'immer';
-import { Observable, Subscriber, Subscription } from 'rxjs';
+import { Observable } from 'rxjs';
 import { map, debounceTime } from 'rxjs/operators';
 
 import { useState, useEffect, useLayoutEffect } from 'react';
@@ -39,6 +39,8 @@ import {
   UseStore,
   StateSelectorList,
 } from './store.interfaces';
+
+import { isDev } from '../env';
 
 // For server-side rendering: https://github.com/react-spring/zustand/pull/34
 const useIsoLayoutEffect = typeof window === 'undefined' ? useEffect : useLayoutEffect;
@@ -97,7 +99,7 @@ export function createStore<TState extends State>(
     options?: ApplyTransactionOptions
   ) => {
     const msg = (phase) => `---- ${phase} applyTransaction() ----- `;
-    const log = (phase) => options?.enableLog && console.log(msg(phase));
+    const log = (phase) => options?.enableLog && isDev() && console.log(msg(phase));
 
     log('start');
     const response = batchAction(action as () => TState, options?.thisArg);
@@ -136,26 +138,27 @@ export function createStore<TState extends State>(
    */
   const addComputedProperty: AddComputedProperty<TState> = <K extends any, U>(
     store: TState,
-    property: ComputedProperty<TState, K, U>
+    property: ComputedProperty<TState, K, U> | ComputedProperty<TState, K, U>[]
   ) => {
-    const deferredSetup = () => {
-      validateComputedProperty(store, property);
+    const list = normalizeProperties(property);
 
-      const makeQuery = (predicate) => query.select(predicate);
-      const selectors = normalizeSelector(property.selectors);
-      const emitters: Observable<any>[] = selectors.map(makeQuery);
-      const source$ = emitters.length > 1 ? combineQueries(emitters) : emitters[0];
-      const subscription = source$
-        .pipe(map(property.transform), debounceTime(1))
-        .subscribe((computedValue: unknown) => {
-          setState((s) => ({ ...s, [property.name]: computedValue }));
+    list.map((it) => {
+      const deferredSetup = () => {
+        validateComputedProperty(store, it);
+
+        const makeQuery = (predicate) => query.select(predicate);
+        const selectors = normalizeSelector(it.selectors);
+        const emitters: Observable<any>[] = selectors.map(makeQuery);
+        const source$ = emitters.length > 1 ? combineQueries(emitters) : emitters[0];
+        const subscription = source$.pipe(map(it.transform), debounceTime(1)).subscribe((computedValue: unknown) => {
+          setState((s) => ({ ...s, [it.name]: computedValue }));
         });
 
-      return () => subscription.unsubscribe();
-    };
+        return () => subscription.unsubscribe();
+      };
 
-    computed[property.name] = !initialized ? deferredSetup : deferredSetup();
-
+      computed[it.name] = !initialized ? deferredSetup : deferredSetup();
+    });
     return store;
   };
 
@@ -335,18 +338,30 @@ function normalizeSelector<T extends State, K>(
 }
 
 /**
+ * Ensure that the 'list' of computedProperties is available for upcoming iteration
+ */
+function normalizeProperties<TState extends State, K, U>(
+  list: ComputedProperty<TState, K, U> | ComputedProperty<TState, K, U>[]
+): ComputedProperty<TState, K, U>[] {
+  const isArray = list instanceof Array;
+  return isArray ? (list as ComputedProperty<TState, K, U>[]) : [list as ComputedProperty<TState, K, U>];
+}
+
+/**
  * Computed property validation
  *  - is the property defined in the state (eg should have a placeholder starting value)
  *  - are you using 2 or more state selectors
  */
 function validateComputedProperty<T extends State, K extends any, U>(store: T, property: ComputedProperty<T, K, U>) {
   if (validateWatchedProperty(store, property.name, 'ComputedProperty')) {
-    const selectors = normalizeSelector(property.selectors);
-    if (selectors.length < 2) {
-      console.warn(`
-        ComputedProperty '${property.name}' is used to derive a new property value from 2 or more state properties. 
-        For distinct, memoized computations, your 'ComputedProperty::selectors' _should_ specify 2 or more selectors .
-      `);
+    if (isDev()) {
+      // const selectors = normalizeSelector(property.selectors);
+      // if (selectors.length < 2) {
+      //   console.warn(`
+      //   ComputedProperty '${property.name}' is used to derive a new property value from 2 or more state properties.
+      //   For distinct, memoized computations, your 'ComputedProperty::selectors' _should_ specify 2 or more selectors .
+      // `);
+      // }
     }
   }
 }

@@ -44,7 +44,7 @@ export interface ComputedProperty<T extends State, K, U> {
 
 // Add computed property to the store
 export type AddComputedProperty<T extends State> = {
-  <K, U extends unknown>(store: T, property: ComputedProperty<T, K, U>): T;
+  <K, U extends unknown>(store: T, property: ComputedProperty<T, K, U> | ComputedProperty<T, K, U>[]): T;
 };
 
 export type SetState<T extends State> = {
