@@ -23,7 +23,7 @@ export const useMessageStore = createStore<MessagesState>(({ set, addComputedPro
 
   return addComputedProperty(store, {
     name: 'filteredMessages',
-    selectors: [(s: MessagesState) => s.messages, (s: MessagesState) => s.filterBy] as any[],
+    selectors: [(s: MessagesState) => s.messages, (s: MessagesState) => s.filterBy],
     transform: onlyFilteredMessages,
   });
 });

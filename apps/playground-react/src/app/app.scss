@@ -3,7 +3,6 @@
   position: relative;
   padding: 15px;
   padding-top: 60px;
-  border: solid 1px #c9c9c9;
   min-height: 220px;
 
   button:last-child {
@@ -174,4 +173,35 @@ input {
   padding: 3px;
   border-radius: 4px;
   margin-left: 5px;
+}
+
+.markdown {
+  .code {
+    padding: 0.3em;
+    margin: 0;
+    font-size: 85%;
+    background-color: rgba(0, 0, 0, 0.14);
+    border-radius: 3px;
+  }
+
+  .link {
+    text-decoration: underline;
+  }
+
+  .highlight {
+    padding: 0.1em;
+    margin: 0;
+
+    font-size: 85%;
+    background-color: rgba(174, 216, 251, 0.278);
+    border-radius: 1px;
+  }
+  .ml-5 {
+    margin-left: 5px;
+  }
+}
+
+.tip {
+  margin-bottom: 50px;
+  margin-top: -30px;
 }

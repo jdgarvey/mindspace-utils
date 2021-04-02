@@ -1,0 +1,19 @@
+import { SimpleCounter } from '../1-simple-counter/_view';
+import { AsyncMessages } from '../2-async-loading/_view';
+import { FilteredMessages } from '../3-computed-property/_view';
+import { QuestionAnswer } from '../4-watch-property/_view';
+import { SharedState } from '../5-shared-state/_view';
+
+export interface NavButton {
+  label: string;
+  url: string;
+  component: React.FC<{}>;
+}
+
+export const BUTTONS: NavButton[] = [
+  { label: 'Simple Counter', url: '/demos/simple-counter', component: SimpleCounter },
+  { label: 'Async Loading', url: '/demos/async-loading', component: AsyncMessages },
+  { label: 'Computed Properties', url: '/demos/computed-properties', component: FilteredMessages },
+  { label: 'Watched Properties', url: '/demos/watched-properties', component: QuestionAnswer },
+  { label: 'Shared State', url: '/demos/shared-state', component: SharedState },
+];

@@ -1,11 +1,7 @@
-import { produce } from 'immer';
 import { renderHook, act } from '@testing-library/react-hooks';
 
-// import * as matchers from 'jest-immutable-matchers';
-// These ^ matchers do not work with Immer; so we must manually check immutability
-
-import { StateSelector, UseStore, State, ComputedProperty, Unsubscribe, StoreAPI, GetState } from './store.interfaces';
 import { createStore } from './useStore';
+import { StateSelector, UseStore, State, GetState } from './store.interfaces';
 
 // ************************************
 // Define custom types for testing only

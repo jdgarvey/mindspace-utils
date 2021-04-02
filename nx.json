@@ -16,25 +16,28 @@
   "npmScope": "mindspace-io",
   "tasksRunnerOptions": {
     "default": {
-      "runner": "@nrwl/workspace/tasks-runners/default",
+      "runner": "@nrwl/nx-cloud",
       "options": {
-        "cacheableOperations": ["build", "lint", "test", "e2e"]
+        "cacheableOperations": ["serve", "build", "lint", "test", "e2e"],
+        "accessToken": "MWM1MjFiZjUtZjc1OS00YTAxLThjN2EtZmNiMzNhMTJkMzJhfHJlYWQtd3JpdGU=",
+        "canTrackAnalytics": false,
+        "showUsageWarnings": true
       }
     }
   },
   "projects": {
+    "playground-react": {
+      "tags": ["type:demo", "scope:react"]
+    },
+    "playground-react-e2e": {
+      "tags": [],
+      "implicitDependencies": ["playground-react"]
+    },
     "utils-react": {
       "tags": ["type:utils", "scope:react"]
     },
     "utils-angular": {
       "tags": ["type:util", "scope:angular"]
-    },
-    "playground-react": {
-      "tags": []
-    },
-    "playground-react-e2e": {
-      "tags": [],
-      "implicitDependencies": ["playground-react"]
     }
   }
 }
