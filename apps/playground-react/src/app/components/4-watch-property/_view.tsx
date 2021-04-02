@@ -1,4 +1,5 @@
 import React from 'react';
+
 import { selectViewModel, useStore } from './question-answer.store';
 
 /**
@@ -11,7 +12,7 @@ export const QuestionAnswer: React.FC = () => {
     <div className="sampleBox">
       <p>
         Ask a yes/no question:
-        <input value={question} onChange={e => updateQuestion(e.target.value)} />
+        <input value={question} onChange={(e) => updateQuestion(e.target.value)} />
       </p>
       <p>{answer}</p>
     </div>

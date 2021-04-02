@@ -1,6 +1,8 @@
-import * as _ from 'lodash';
-import axios from 'axios';
-import { createStore, State, SetState, StateSelector } from '@mindspace-io/react';
+import { debounce } from 'lodash';
+import { createStore } from '@mindspace-io/react';
+
+import { QAState } from './question-answer.interfaces';
+import { callWtfApi, WTF } from './wtf.service';
 
 /****************************************************
  * Purpose:
@@ -14,93 +16,36 @@ import { createStore, State, SetState, StateSelector } from '@mindspace-io/react
  * Define the state + mutators + computed properties
  *******************************************/
 
-export interface QAState extends State {
-  // Data
-  question: string;
-  answer: string;
-
-  // Mutators
-  updateQuestion: (answer: string) => void;
-}
-
-/*******************************************
- * Define the view model
- * Define a selector function to extract ViewModel from `useStore(<selector>)`
- *******************************************/
-
-export type ViewModel = [string, string, (question: string) => void];
-
-export const selectViewModel: StateSelector<QAState, ViewModel> = (s: QAState) => [
-  s.question,
-  s.answer,
-  s.updateQuestion,
-];
-
-/*******************************************
- * Instantiate store with state
- * Note: The `filteredMessages` value is updated via a 'computed' property
- *******************************************/
-
 export const useStore = createStore<QAState>(({ set, watchProperty }) => {
   const store = {
-    // data
-
     question: '',
     answer: '',
-
-    // Mutators
-
     updateQuestion(answer: string) {
       set((s: QAState) => {
         s.question = answer;
       });
     },
   };
-
-  // While 'observe' also works, sometimes we just want to watch something
-  // Note: let's debounce user input (until idle) for 500ms
-
-  const onQuestionChange = _.debounce(watchQuestion(set), 500);
-  watchProperty<QAState>(store, 'question', onQuestionChange);
-
-  return store;
-});
-
-// *************************************************
-// Private Utils
-// *************************************************
-
-const URL_WTF = 'https://yesno.wtf/api';
-const WTF = {
-  wait: 'Thinking...',
-  hint: 'Questions only... which usually contain a question mark. ;-)',
-  error: 'Error! Could not reach the API ',
-};
-/**
- * Partial application to precapture the 'set' function
- */
-function watchQuestion(set: SetState<QAState>) {
-  // Provide a listener to handle changes to the question value
-  return async function (question: string) {
-    const isQuestion = question.indexOf('?') > -1;
-    const updateAnswer = (value: string) => {
-      set((s: QAState) => {
-        s.answer = value;
-      });
-    };
+  const updateAnswer = (value: string) =>
+    set((d) => {
+      d.answer = value;
+    });
+  const verify = debounce(async (newQuestion: string) => {
     updateAnswer(WTF.wait);
-
-    if (isQuestion) {
+    if (newQuestion.indexOf('?') > -1) {
       try {
-        const response = await axios.get(URL_WTF);
-        updateAnswer(_.capitalize(response.data.answer));
+        const newAnswer = await callWtfApi();
+        updateAnswer(newAnswer);
 
         return;
       } catch (error) {
         updateAnswer(`${WTF.error}: ${error}`);
       }
     }
-
     updateAnswer(WTF.hint);
-  };
-}
+  }, 200);
+
+  return watchProperty(store, 'question', verify);
+});
+
+export { selectViewModel } from './question-answer.interfaces';

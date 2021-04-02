@@ -3,12 +3,11 @@ import React from 'react';
 import { Header } from './components/_ui/header';
 import { TabItem } from './components/_ui/tabItem';
 
-import { EmailServiceProvider } from './services/email-service.provider';
-
-import { SimpleCounter } from './components/1-simple-counter/simple-counter';
-import { AsyncMessages } from './components/2-async-loading/async-messages';
-import { FilteredMessages } from './components/3-computed-property/filtered-messages';
-import { QuestionAnswer } from './components/4-watch-property/question-answer';
+import { SimpleCounter } from './components/1-simple-counter/_view';
+import { AsyncMessages } from './components/2-async-loading/_view';
+import { FilteredMessages } from './components/3-computed-property/_view';
+import { QuestionAnswer } from './components/4-watch-property/_view';
+import { SharedState } from './components/5-shared-state/_view';
 
 import './app.scss';
 
@@ -21,22 +20,34 @@ const App: React.FC = () => {
         <Header />
       </div>
       <div className="content">
-        <TabItem url="1-simple-counter/simple-counter.tsx" description={`${TITLE} simple state management`}>
+        <TabItem url="1-simple-counter/simple-counter.tsx" description={`1) ${TITLE} simple state management`}>
           <SimpleCounter />
         </TabItem>
         <TabItem
           url="2-async-loading/async-messages.tsx"
-          description={`${TITLE} Context, loading, status, and transactions`}
+          description={`2) ${TITLE}  async loading, status, and transactions`}
         >
-          <EmailServiceProvider>
-            <AsyncMessages />
-          </EmailServiceProvider>
+          <AsyncMessages />
         </TabItem>
-        <TabItem url="3-computed-property/filtered-messages.tsx" description={`${TITLE}  'computed' properties`}>
+        <TabItem
+          url="3-computed-property/filtered-messages.tsx"
+          description={`3) ${TITLE}  'computed' properties + debounce`}
+        >
           <FilteredMessages />
         </TabItem>
-        <TabItem url="4-watch-property/question-answer.tsx" description={`${TITLE}  'watched' properties`}>
+        <TabItem
+          url="4-watch-property/question-answer.tsx"
+          description={`4) ${TITLE}  'watched' properties + async axios service`}
+        >
           <QuestionAnswer />
+        </TabItem>
+
+        <TabItem url="5-shared-state/unshared-views.tsx" description={`5) ${TITLE}  state is shared across components`}>
+          <SharedState />
+        </TabItem>
+
+        <TabItem>
+          <div className="sampleBox"></div>
         </TabItem>
       </div>
     </div>

@@ -3,7 +3,7 @@
   position: relative;
   padding: 15px;
   padding-top: 60px;
-  border: solid 1px burlywood;
+  border: solid 1px #c9c9c9;
   min-height: 220px;
 
   button:last-child {
@@ -13,7 +13,25 @@
   .count {
     font-weight: normal;
     color: white;
-    background-color: rgb(163, 43, 10);
+    background-color: rgb(16, 155, 16);
+    margin: 3px;
+    padding: 3px;
+    padding-left: 5px;
+  }
+
+  .count-error {
+    font-weight: normal;
+    color: white;
+    background-color: rgb(206, 124, 101);
+    margin: 3px;
+    padding: 3px;
+    padding-left: 5px;
+  }
+
+  .count-error-2 {
+    font-weight: normal;
+    color: white;
+    background-color: rgb(221, 107, 250);
     margin: 3px;
     padding: 3px;
     padding-left: 5px;
@@ -28,6 +46,27 @@
     padding-top: 3px;
     padding-bottom: 3px;
   }
+
+  .row {
+    display: flex;
+    justify-content: space-around;
+    margin-bottom: 20px;
+
+    button:last-child {
+      margin-left: 0px;
+    }
+
+    & > div {
+      align-content: left;
+    }
+
+    h4 {
+      background-color: lightblue;
+      padding: 5px;
+      border-radius: 3px;
+      width: 200px;
+    }
+  }
 }
 
 .sample-info {
@@ -39,9 +78,9 @@
   min-width: 60px;
   min-height: 20px;
   color: rgb(102, 70, 0);
-  background-color: #fff7cc;
-  border: 1px solid burlywood;
-  border-bottom: solid 0px burlywood;
+  background-color: #c9c9c9;
+  border: 1px solid #c9c9c9;
+  border-bottom: solid 0px #c9c9c9;
   z-index: 999;
   font-size: 0.8em;
   padding: 4px 7px 4px 7px;
@@ -69,12 +108,17 @@
 }
 .header {
   grid-area: header;
-}
-
-.header > div {
   display: flex;
   justify-content: center;
+
+  & > div {
+    position: relative;
+    box-sizing: border-box;
+    position: relative;
+    width: 70%vw;
+  }
 }
+
 .content {
   grid-area: content;
   display: flex;
@@ -82,6 +126,7 @@
   justify-content: space-around;
   column-gap: 10px;
   position: relative;
+  margin-top: 40px;
 
   .tabItem {
     overflow: hidden;
@@ -90,13 +135,13 @@
 
   .tabItem > .description {
     position: absolute;
-    top: 27px;
+    top: 25px;
     left: 0;
     padding: 10px;
     padding-top: 15px;
     width: 100%;
-    background-color: #fff7cc;
-    border-bottom: 1px solid burlywood;
+    background-color: #c9c9c9;
+    border-bottom: 1px solid #c9c9c9;
   }
 }
 .content > .tabItem {

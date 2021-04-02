@@ -1,26 +1,25 @@
 import React, { useContext, useState } from 'react';
 
-import { EmailService, EmailServiceContext } from '../../services';
-import { makeStore, MessagesState } from './async-messages.store';
+import { EmailService } from './messages.service';
+import { MessagesState } from './messages.interfaces';
+import { makeStore } from './messages.store';
 
 export const AsyncMessages: React.FC = () => {
-  const service = useContext<EmailService>(EmailServiceContext);
-  const [useStore] = useState(() => makeStore(service))
+  const [service] = useState<EmailService>(() => new EmailService());
+  const [useMessageStore] = useState(() => makeStore(service));
 
-  const state: MessagesState = useStore();
+  const state: MessagesState = useMessageStore();
 
   return (
     <div className="sampleBox">
-      {state.isLoading &&       
-        
+      {state.isLoading && (
         <>
           Loading in <span className="count"> {state.timeToReady} </span> sec!
           <img src="assets/spinner.gif" width="30%"></img>
         </>
-        
-      }
+      )}
 
-      {!state.isLoading && 
+      {!state.isLoading && (
         <>
           Emails:
           <ul>
@@ -32,8 +31,7 @@ export const AsyncMessages: React.FC = () => {
           </ul>
           <button onClick={state.refresh}> Refresh </button>
         </>
-      }
-
+      )}
     </div>
   );
 };
