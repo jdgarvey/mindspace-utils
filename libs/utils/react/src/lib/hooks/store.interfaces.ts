@@ -84,6 +84,7 @@ export interface StoreAPI<T extends State> {
 
 export type StateCreatorOptions = {
   storeName?: string; // Used by Akita to decorate the Store constructor
+  autoReset?: boolean; // When component dismounts, should the store be reset to original values
 };
 
 export type StateCreator<T extends State> = (store: StoreAPI<T>) => T;

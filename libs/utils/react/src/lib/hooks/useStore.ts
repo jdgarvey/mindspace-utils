@@ -1,5 +1,5 @@
 import { produce } from 'immer';
-import { Observable } from 'rxjs';
+import { BehaviorSubject, Observable } from 'rxjs';
 import { map, debounceTime } from 'rxjs/operators';
 
 import { useState, useEffect, useLayoutEffect } from 'react';
@@ -7,7 +7,6 @@ import {
   Query,
   Store,
   StoreConfigOptions,
-  StoreConfig,
   UpdateStateCallback,
   applyTransaction as batchAction,
   combineQueries,
@@ -70,9 +69,11 @@ export function createStore<TState extends State>(
    */
   let initialized = false;
 
+  const autoReset = options.hasOwnProperty('autoReset') ? !!options.autoReset : false;
   const name = options.storeName || `ReactAkitStore${Math.random()}`;
-  const store = new Store<TState>({}, { producerFn: produce, name });
+  const store = new Store<TState>({}, { producerFn: produce, name, resettable: autoReset });
   const query = new Query<TState>(store);
+  const recompute = new BehaviorSubject<TState>({} as TState);
 
   /**
    * setIsLoading() + setError()
@@ -149,7 +150,7 @@ export function createStore<TState extends State>(
         const makeQuery = (predicate) => query.select(predicate);
         const selectors = normalizeSelector(it.selectors);
         const emitters: Observable<any>[] = selectors.map(makeQuery);
-        const source$ = emitters.length > 1 ? combineQueries(emitters) : emitters[0];
+        const source$ = emitters.length > 1 ? combineQueries([...emitters, recompute.asObservable()]) : emitters[0];
         const subscription = source$.pipe(map(it.transform), debounceTime(1)).subscribe((computedValue: unknown) => {
           setState((s) => ({ ...s, [it.name]: computedValue }));
         });
@@ -209,6 +210,18 @@ export function createStore<TState extends State>(
       unsubscribe();
     });
     store.destroy();
+  };
+
+  /**
+   * Reset store to initial state, force recompute of properties
+   */
+  const reset = () => {
+    if (autoReset) {
+      // store.update(() => Object.assign({}, store['_initialState']));
+      // we need our computed values to recompute.
+      store.reset();
+    }
+    recompute.next(store.getValue());
   };
 
   /**
@@ -274,7 +287,11 @@ export function createStore<TState extends State>(
     useIsoLayoutEffect(() => {
       setSlice$(toObservable(selector));
 
-      return () => destroy();
+      // !important:
+      // Do not auto-destroy the store on hook/component dismount
+      // stores can be shared and persistent between mountings.
+
+      return () => reset();
     }, [selector]);
 
     return slice;
