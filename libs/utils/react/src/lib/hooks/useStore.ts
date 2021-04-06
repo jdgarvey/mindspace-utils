@@ -59,21 +59,21 @@ export function createStore<TState extends State>(
 ): UseStore<TState> {
   /**
    * Internal, startup queue for computed and watched properties
-   *
    * NOTE: is currently only used during store startup configuration
    */
+  let initialized = false;
   const computed: Record<string, (() => Unsubscribe) | (() => void)> = {};
+
+  const name = options.storeName || `ReactAkitStore${Math.random()}`;
+  const resettable = options.hasOwnProperty('autoReset') ? !!options.autoReset : false;
+  const recompute = new BehaviorSubject<TState>({} as TState);
+
   /**
    * Internal Akita Store + Query instances
    * Note: Immer immutability is auto-applied via the `producerFn` configuration
    */
-  let initialized = false;
-
-  const autoReset = options.hasOwnProperty('autoReset') ? !!options.autoReset : false;
-  const name = options.storeName || `ReactAkitStore${Math.random()}`;
-  const store = new Store<TState>({}, { producerFn: produce, name, resettable: autoReset });
+  const store = new Store<TState>({}, { producerFn: produce, name, resettable });
   const query = new Query<TState>(store);
-  const recompute = new BehaviorSubject<TState>({} as TState);
 
   /**
    * setIsLoading() + setError()
@@ -213,14 +213,15 @@ export function createStore<TState extends State>(
   };
 
   /**
-   * Reset store to initial state, force recompute of properties
+   * When component unmounts and the hook is released,
+   * optionally reset store to initial state and force recompute of properties
    */
   const reset = () => {
-    if (autoReset) {
-      // store.update(() => Object.assign({}, store['_initialState']));
-      // we need our computed values to recompute.
+    if (resettable) {
       store.reset();
     }
+
+    // we need our computed values to recompute.
     recompute.next(store.getValue());
   };
 

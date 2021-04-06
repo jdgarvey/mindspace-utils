@@ -1,9 +1,38 @@
+.description {
+  i {
+    color: rgb(157, 157, 157);
+  }
+}
+
+.demo {
+  min-height: 130px;
+  width: 100%;
+  display: block;
+}
+
 .sampleBox {
   display: block;
   position: relative;
   padding: 15px;
   padding-top: 60px;
   min-height: 220px;
+
+  section {
+    margin-bottom: 30px;
+  }
+
+  .wave {
+    display: block;
+    width: 100%;
+    max-width: 100%;
+    position: absolute;
+    left: 0;
+    bottom: 2px;
+    padding-bottom: 20px;
+    line-height: 0;
+    transform: translateY(100%);
+    overflow: hidden;
+  }
 
   button:last-child {
     margin-left: 20px;
@@ -187,18 +216,18 @@ input {
   .link {
     text-decoration: underline;
   }
+}
 
-  .highlight {
-    padding: 0.1em;
-    margin: 0;
+.highlight {
+  padding: 0.1em;
+  margin: 0;
 
-    font-size: 85%;
-    background-color: rgba(174, 216, 251, 0.278);
-    border-radius: 1px;
-  }
-  .ml-5 {
-    margin-left: 5px;
-  }
+  font-size: 85%;
+  background-color: rgba(174, 216, 251, 0.278);
+  border-radius: 1px;
+}
+.ml-5 {
+  margin-left: 5px;
 }
 
 .tip {

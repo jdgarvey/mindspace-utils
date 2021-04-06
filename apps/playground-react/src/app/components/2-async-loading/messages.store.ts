@@ -8,8 +8,13 @@ import { MessagesState } from './messages.interfaces';
  *  Demonstrate the use of Reactive store 'async mutators'
  **********************************************/
 
+const cache = new WeakMap();
+
 export const makeStore = (emailService: EmailService): UseStore<MessagesState> => {
-  const service = new EmailService();
+  if (cache.has(emailService)) {
+    return cache.get(emailService);
+  }
+
   const useStore = createStore<MessagesState>(({ set, setIsLoading, applyTransaction }) => {
     const decrement = () =>
       set((s) => {
@@ -32,7 +37,7 @@ export const makeStore = (emailService: EmailService): UseStore<MessagesState> =
         });
 
         const stopCountdown = startCountdown();
-        const messages = await service.loadAll();
+        const messages = await emailService.loadAll();
 
         applyTransaction(() => {
           set((s) => {
@@ -45,6 +50,8 @@ export const makeStore = (emailService: EmailService): UseStore<MessagesState> =
       },
     };
   });
+
+  cache.set(emailService, useStore);
 
   return useStore;
 };

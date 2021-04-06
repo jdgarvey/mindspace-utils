@@ -119,7 +119,11 @@
             "main": "apps/playground-react/src/main.tsx",
             "polyfills": "apps/playground-react/src/polyfills.ts",
             "tsConfig": "apps/playground-react/tsconfig.app.json",
-            "styles": ["apps/playground-react/src/styles.css", "apps/playground-react/src/app/tailwind.css"],
+            "styles": [
+              "apps/playground-react/src/app/tailwind.css",
+              "apps/playground-react/src/github-markdown.css",
+              "apps/playground-react/src/styles.css"
+            ],
             "scripts": [],
             "webpackConfig": "apps/playground-react/webpack.config.js"
           },

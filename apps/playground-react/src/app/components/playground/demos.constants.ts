@@ -1,6 +1,7 @@
-import { SimpleCounter } from '../1-simple-counter/_view';
-import { AsyncMessages } from '../2-async-loading/_view';
-import { FilteredMessages } from '../3-computed-property/_view';
+import SimpleCounter from '../1-simple-counter';
+import AsyncMessages from '../2-async-loading';
+import FilteredMessages from '../3-computed-property';
+
 import { QuestionAnswer } from '../4-watch-property/_view';
 import { SharedState } from '../5-shared-state/_view';
 
