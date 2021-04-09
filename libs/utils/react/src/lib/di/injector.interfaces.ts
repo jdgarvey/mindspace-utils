@@ -1,7 +1,7 @@
 import { Type } from './type';
 import { InjectionToken } from './injection-token';
 
-export type Token = String | InjectionToken<string> | (new (...args: any[]) => any);
+export type Token = String | Number | InjectionToken<string> | (new (...args: any[]) => any);
 
 export interface TypeProvider extends Type<any> {
   deps?: any[];
@@ -11,7 +11,7 @@ export interface Provider {
   provide: Token;
   useClass?: any;
   useValue?: any;
-  useFactory?: () => any;
+  useFactory?: (...args) => any;
   deps?: any[];
 }
 
@@ -24,4 +24,3 @@ export interface DependencyInjector {
   addProviders: (registry: Provider[]) => UndoChanges;
   getFlatProviderTree: () => Provider[];
 }
-

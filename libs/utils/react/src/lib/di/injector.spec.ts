@@ -54,7 +54,36 @@ describe('DependencyInjector', () => {
 
       expect(instA.title).toBe("A");
       expect(instA.msg).toBe("windy");
-    });   
+    }); 
+    
+    it('should allow A deps overrides with useFactory + dependencies Token', () => {
+      const VAL_TOKEN = new InjectionToken('raw value')
+      injector.addProviders([ 
+        { provide: VAL_TOKEN, useValue: 3 },
+        { provide: MSG_TOKEN, useFactory: (val:number) => `windy-${val}`, deps:[VAL_TOKEN] } ])
+      const instA: A = injector.get(A);
+
+      expect(instA.title).toBe("A");
+      expect(instA.msg).toBe("windy-3");
+    }); 
+
+    it('should allow A deps overrides with useFactory + dependencies string value', () => {
+      injector.addProviders([ 
+        { provide: MSG_TOKEN, useFactory: (val:string) => `windy-${val}`, deps:["3a"] } ])
+      const instA: A = injector.get(A);
+
+      expect(instA.title).toBe("A");
+      expect(instA.msg).toBe("windy-3a");
+    }); 
+
+    it('should allow A deps overrides with useFactory + dependencies number value', () => {
+      injector.addProviders([ 
+        { provide: MSG_TOKEN, useFactory: (val:number) => `windy-${val}`, deps:[4] } ])
+      const instA: A = injector.get(A);
+
+      expect(instA.title).toBe("A");
+      expect(instA.msg).toBe("windy-4");
+    }); 
 
     it('should undo changes after addProviders()', () => {
       const undoChanges: UndoChanges = injector.addProviders([ 

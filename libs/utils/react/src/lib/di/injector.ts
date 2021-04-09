@@ -69,6 +69,7 @@ class Injector implements DependencyInjector {
    */
   instanceOf(token: Token): any {
     const inst = this.instanceFromRegistry(token) || this.instanceFromParents(token);
+
     if (!inst) {
       throw new Error(`Unable make instance of ${String(token)}`);
     }
@@ -137,6 +138,13 @@ class Injector implements DependencyInjector {
    * @param token Class, value, or factory
    */
   private findAndMakeInstance(token: Token): any {
+    const isString = typeof token === 'string';
+    const isNumber = !isString && typeof token === 'number';
+
+    if (isString || isNumber) {
+      return token;
+    }
+
     let result = this.singletons.get(token) || this.instanceOf(token);
     result && this.singletons.set(token, result);
 
@@ -150,7 +158,7 @@ class Injector implements DependencyInjector {
 
     const makeWithClazz = (clazz: any) =>
       clazz ? new (clazz.bind.apply(clazz, __doSpread.call(null, [void 0], deps)))() : null;
-    const makeWithFactory = (fn: () => any) => (fn ? fn.call(null, deps) : null);
+    const makeWithFactory = (fn: (...args) => any) => (fn ? fn.call(null, deps) : null);
 
     return (
       provider &&

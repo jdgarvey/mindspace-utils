@@ -155,6 +155,12 @@ export function createStore<TState extends State>(
           setState((s) => ({ ...s, [it.name]: computedValue }));
         });
 
+        if (!!it.initialValue) {
+          const initialValue =
+            typeof it.initialValue === 'function' ? (it.initialValue as Function)() : it.initialValue;
+          setState((s) => ({ ...s, [it.name]: initialValue }));
+        }
+
         return () => subscription.unsubscribe();
       };
 
@@ -392,8 +398,8 @@ function validateComputedProperty<T extends State, K extends any, U>(store: T, p
 function validateWatchedProperty<T extends State>(store: T, name: string, fieldType = 'WatchProperty') {
   const hasProperty = store.hasOwnProperty(name);
   if (!hasProperty) {
-    console.error(`
-      ${fieldType} '${name}' is not a valid property in your store. 
+    console.warn(`
+      ${fieldType} '${name}' may not be a valid property in your store. 
     `);
   }
   return hasProperty;
