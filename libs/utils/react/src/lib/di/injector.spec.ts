@@ -57,14 +57,16 @@ describe('DependencyInjector', () => {
     }); 
     
     it('should allow A deps overrides with useFactory + dependencies Token', () => {
-      const VAL_TOKEN = new InjectionToken('raw value')
+      const VAL1_TOKEN = new InjectionToken('raw value')
+      const VAL2_TOKEN = new InjectionToken('Custom Object');
       injector.addProviders([ 
-        { provide: VAL_TOKEN, useValue: 3 },
-        { provide: MSG_TOKEN, useFactory: (val:number) => `windy-${val}`, deps:[VAL_TOKEN] } ])
+        { provide: VAL1_TOKEN, useValue: 3 },
+        { provide: VAL2_TOKEN, useValue: {name: 'Thomas'} },
+        { provide: MSG_TOKEN, useFactory: (val:number, user) => `${user.name} is windy-${val}`, deps:[VAL1_TOKEN, VAL2_TOKEN] } ])
       const instA: A = injector.get(A);
 
       expect(instA.title).toBe("A");
-      expect(instA.msg).toBe("windy-3");
+      expect(instA.msg).toBe("Thomas is windy-3");
     }); 
 
     it('should allow A deps overrides with useFactory + dependencies string value', () => {

@@ -7,3 +7,4 @@
 /tools
 injector.spec.ts
 /apps/test-react-akita/src/app/components/
+/libs/utils/react/src/lib/hooks/useInjector.ts

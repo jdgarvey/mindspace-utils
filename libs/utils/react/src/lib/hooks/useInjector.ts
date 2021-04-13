@@ -23,13 +23,7 @@ export type HookTuple<V, I extends DependencyInjector> = [V, I]; // Array of val
  * @param injector Custom DependencyInjector
  * @param token Token type of string, Class, or InjectionToken
  */
-export function useInjectorHook<T extends Token>(
-  token: T,
-  injector: DependencyInjector
-): HookTuple<any, DependencyInjector>;
-export function useInjectorHook<T extends Token, V>(
-  token: T,
-  injector: DependencyInjector
-): HookTuple<V, DependencyInjector> {
+export function useInjectorHook<T extends Token>( token: T, injector: DependencyInjector): HookTuple<any, DependencyInjector>;
+export function useInjectorHook<T extends Token, V>(token: T, injector: DependencyInjector): HookTuple<V, DependencyInjector> {
   return [injector.get(token) as V, injector];
 }

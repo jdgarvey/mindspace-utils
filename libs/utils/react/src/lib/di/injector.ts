@@ -156,9 +156,10 @@ class Injector implements DependencyInjector {
     const provider = this.findLastRegistration(token, this.providers);
     const deps = provider && provider.deps ? provider.deps.map(makeAndCache) : [];
 
+    // const makeWithClazz = (clazz: any) => (clazz ? new clazz(...deps) : null);
     const makeWithClazz = (clazz: any) =>
       clazz ? new (clazz.bind.apply(clazz, __doSpread.call(null, [void 0], deps)))() : null;
-    const makeWithFactory = (fn: (...args) => any) => (fn ? fn.call(null, deps) : null);
+    const makeWithFactory = (fn: (...args) => any) => (fn ? fn.apply(null, deps) : null);
 
     return (
       provider &&
