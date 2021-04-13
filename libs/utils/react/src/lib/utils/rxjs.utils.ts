@@ -1,5 +1,5 @@
 import { Observable } from 'rxjs';
-import { distinctUntilChanged, first, toArray } from 'rxjs/operators';
+import { first, toArray } from 'rxjs/operators';
 
 /**
  * @whatItDoes reads all the values from an observable and returns a promise
