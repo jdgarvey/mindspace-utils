@@ -21,8 +21,6 @@ export const itemUpdated = (item: any) => new ItemEvent(CollectionEvent.ITEM_UPD
 export const itemRemoved = (itemId: string) => new ItemEvent(CollectionEvent.ITEM_REMOVED, itemId);
 export const itemError = (error: any) => new ItemEvent(CollectionEvent.ITEM_ERROR, error);
 
-export type Unsubscribe = () => void;
-
 /**
  * Simply Pub/Sub mechanism that support decoupled communication between services
  * Note: this EventBus does NOT cache previously emitted events...
@@ -34,7 +32,7 @@ export class EventBus {
     this.emitter.next(event);
   }
 
-  on<T>(event: string, notify: (data: T) => void): Unsubscribe {
+  on<T>(event: string, notify: (data: T) => void): () => void {
     const watch$ = this.emitter.pipe(
       filter((e: EmitEvent<T>) => e.type === event),
       map((e: EmitEvent<T>) => e.data)

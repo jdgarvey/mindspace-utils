@@ -204,9 +204,9 @@ export type Status = { isLoading: boolean; error: unknown };
 
 ### Live Demos
 
-A [CodeSandbox demo](https://codesandbox.io/s/state-w-react-akita-createstore-it03e?file=/src/components/3-computed-property/filtered-messages.tsx) has been prepared to allow developers to quickly and easily play with these features:
+A [CodeSandbox demo](https://codesandbox.io/s/reactive-state-management-in-reactjs-t0e0b) has been prepared to allow developers to quickly and easily play with these features:
 
-[![image](https://user-images.githubusercontent.com/210413/112064593-3abc2800-8b31-11eb-905c-623cbcc5a7ab.png)](https://codesandbox.io/s/state-w-react-akita-createstore-it03e?file=/src/components/3-computed-property/filtered-messages.tsx)
+[![image](https://user-images.githubusercontent.com/210413/112064593-3abc2800-8b31-11eb-905c-623cbcc5a7ab.png)](https://codesandbox.io/s/reactive-state-management-in-reactjs-t0e0b)
 
 ---
 

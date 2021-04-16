@@ -29,12 +29,20 @@ export const AsyncMessages: React.FC = () => {
 
       <div className="mt-3 flex items-center justify-end" style={{ width: '100%' }}>
         {!state.isLoading && (
-          <button
-            onClick={state.refresh}
-            className="bg-blue-500 text-white font-bold px-4 py-2 mr-4 text-sm uppercase rounded tracking-wider focus:outline-none hover:bg-blue-600"
-          >
-            {hasMessages ? 'Refresh' : 'Load All'}
-          </button>
+          <>
+            <button
+              onClick={state.refresh}
+              className="bg-blue-500 text-white font-bold px-4 py-2 mr-4 text-sm uppercase rounded tracking-wider focus:outline-none hover:bg-blue-600"
+            >
+              {hasMessages ? 'Refresh' : 'Load All'}
+            </button>
+            <button
+              onClick={useMessageStore.reset}
+              className="bg-red-500 text-white font-bold px-4 py-2 mr-4 text-sm uppercase rounded tracking-wider focus:outline-none hover:bg-blue-600"
+            >
+              Reset
+            </button>
+          </>
         )}
         {state.isLoading && (
           <div className="flex justify-around items-center">

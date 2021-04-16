@@ -105,6 +105,69 @@ describe('UseStore state management', () => {
       store.saveEmails(['ThomasBurleson@gmail.com']);
       expect(emails.length).toBe(0);
     });
+
+    it('should reset store from the hook', () => {
+      const hook = createStore<EmailState>(({ set }) => ({
+        emails: [],
+        saveEmails: (emails) => set({ emails }),
+      }));
+      const { result, waitForNextUpdate } = renderHook<UseStore<EmailState>, EmailState>(hook);
+
+      act(() => {
+        result.current.saveEmails(['ThomasBurleson@gmail.com']);
+      });
+      expect(result.current.emails.length).toBe(1);
+
+      act(() => {
+        // Explicitly for the associated store to reset state
+        hook.reset();
+      });
+      expect(result.current.emails.length).toBe(0);
+    });
+
+    it('should not reset normal store when unmounted', () => {
+      const hook = createStore<EmailState>(({ set }) => ({
+        emails: [],
+        saveEmails: (emails) => set({ emails }),
+      }));
+      const { result, unmount, rerender } = renderHook<UseStore<EmailState>, EmailState>(hook);
+
+      expect(result.current.emails.length).toBe(0);
+      act(() => {
+        result.current.saveEmails(['ThomasBurleson@gmail.com']);
+      });
+      expect(result.current.emails.length).toBe(1);
+
+      unmount();
+      rerender();
+
+      // Without StateCreatorOptions 'autoReset: true', store is cached and shared
+      // regardless of components unmounting
+      expect(result.current.emails.length).toBe(1);
+    });
+
+    it('should reset store from resettable store when unmounted', () => {
+      const hook = createStore<EmailState>(
+        ({ set }) => ({
+          emails: [],
+          saveEmails: (emails) => set({ emails }),
+        }),
+        { autoReset: true } // when component unmounts, autoreset store
+      );
+      const { result, unmount, rerender } = renderHook<UseStore<EmailState>, EmailState>(hook);
+
+      expect(result.current.emails.length).toBe(0);
+      act(() => {
+        result.current.saveEmails(['ThomasBurleson@gmail.com']);
+      });
+      expect(result.current.emails.length).toBe(1);
+
+      unmount();
+      rerender();
+
+      // Only because we set the StateCreatorOptions 'autoReset'
+      expect(result.current.emails.length).toBe(0);
+    });
   });
 
   describe('creates a store hook `useStore`', () => {

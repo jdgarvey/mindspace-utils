@@ -62,6 +62,8 @@ export function createStore<TState extends State>(
    * NOTE: is currently only used during store startup configuration
    */
   let initialized = false;
+  let initialState: any;
+
   const computed: Record<string, (() => Unsubscribe) | (() => void)> = {};
 
   const name = options.storeName || `ReactAkitStore${Math.random()}`;
@@ -219,16 +221,25 @@ export function createStore<TState extends State>(
   };
 
   /**
-   * When component unmounts and the hook is released,
-   * optionally reset store to initial state and force recompute of properties
+   * Reset() for two conditions:
+   *
+   * (1) Dismount - When component unmounts and the hook is released,
+   *                ^ this requires options 'resettable' to be true
+   * (2) Imperative - When shared state should be cleared/reset
+   *                  ^ available anytime so the shared hook can reset state
+   *
+   * Reset store to initial state and force recompute of properties
+   *
    */
-  const reset = () => {
-    if (resettable) {
-      store.reset();
-    }
-
+  const reset = (forced = false) => {
     // we need our computed values to recompute.
-    recompute.next(store.getValue());
+    resettable && store.reset();
+    recompute.next({ ...initialState });
+
+    if (forced) {
+      const nextState = produce({}, () => ({ ...initialState }));
+      store._setState(nextState);
+    }
   };
 
   /**
@@ -246,7 +257,8 @@ export function createStore<TState extends State>(
 
   const hookAPI: HookAPI<TState> = {
     observe: subscribe, // watch for changes WITHOUT trigger re-renders
-    destroy: destroy, // clean-up store, disconnect streams
+    destroy: destroy, // clean-up store, permanently disconnect streams
+    reset: () => reset(true), // allow hook-level resets of store information; without destroying streams
   };
 
   /**
@@ -313,10 +325,10 @@ export function createStore<TState extends State>(
    * - inject storeAPI
    */
   const onInit = () => {
-    const state = produce({}, () => ({
+    const state = (initialState = produce({}, () => ({
       ...{ error: null, isLoading: false },
       ...createState({ ...storeAPI, ...hookAPI }),
-    }));
+    })));
 
     reinitStore(store, name, state);
     registerComputedProperties();

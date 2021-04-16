@@ -1,11 +1,13 @@
 import { Observable } from 'rxjs';
-import { EventBus, Unsubscribe } from './eventbus';
+import { EventBus } from './eventbus';
 
 enum SESSION {
   STARTED = 'sessionStarted',
   STOPPED = 'sessionStopped',
   UNKNOWN = 'unknown event',
 }
+
+type Unsubscribe = () => void;
 
 const createEvent = (type: string, data?: any) => ({ type, data });
 

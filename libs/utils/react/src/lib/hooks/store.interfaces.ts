@@ -60,6 +60,7 @@ export interface ApplyTransactionOptions {
 export type ApplyTransaction<T extends State> = (action: () => T | void, options?: ApplyTransactionOptions) => T;
 
 export type Destroy = () => void;
+export type ResetStore = () => void;
 
 /**
  * The useStore hook is decorated with only two (2) accessible API
@@ -68,6 +69,7 @@ export type Destroy = () => void;
 export interface HookAPI<T extends State> {
   observe: Subscribe<T>;
   destroy: Destroy;
+  reset: ResetStore;
 }
 
 /**
