@@ -104,7 +104,7 @@ export type StateCreatorOptions = {
  * 1) StoreAPI to set, get, addComputed properties, etc.
  * 2) StoreInitialized to provide the store factory an optional initialization callback (if needd)
  */
-export type StateCreator<T extends State> = (store: StoreAPI<T>, onInit?: OnInitListener) => T;
+export type StateCreator<T extends State> = (store: StoreAPI<T>, onInit: OnInitListener) => T;
 
 /**
  * Interface for the custom hook published from calls to `createStore()`
