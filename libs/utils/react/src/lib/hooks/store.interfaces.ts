@@ -85,12 +85,28 @@ export interface StoreAPI<T extends State> {
   setError: SetError;
 }
 
+/**
+ * Feature to enables stores to internal perform initialization side affect
+ * AFTER store is ready
+ */
+export type OnInitialized = () => Unsubscribe | void;
+export interface StoreInitialized {
+  onInit: (callWhenReady: OnInitialized) => void;
+}
+
 export type StateCreatorOptions = {
   storeName?: string; // Used by Akita to decorate the Store constructor
   autoReset?: boolean; // When component dismounts, should the store be reset to original values
 };
 
-export type StateCreator<T extends State> = (store: StoreAPI<T>) => T;
+/**
+ * Defines a function that will be called to create a store.
+ *
+ * That callback (to create the store) will be provided two (2) important arguments:
+ * 1) StoreAPI to set, get, addComputed properties, etc.
+ * 2) StoreInitialized to provide the store factory an optional initialization callback (if needd)
+ */
+export type StateCreator<T extends State> = (store: StoreAPI<T>, onInit?: StoreInitialized) => T;
 
 /**
  * Interface for the custom hook published from calls to `createStore()`

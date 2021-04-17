@@ -37,6 +37,7 @@ import {
   SetLoading,
   UseStore,
   StateSelectorList,
+  OnInitialized,
 } from './store.interfaces';
 
 import { isDev } from '../env';
@@ -44,6 +45,7 @@ import { isDev } from '../env';
 // For server-side rendering: https://github.com/react-spring/zustand/pull/34
 const useIsoLayoutEffect = typeof window === 'undefined' ? useEffect : useLayoutEffect;
 const identity = (s: any) => s as any;
+const NOOP = () => {};
 
 /**
  * Create a store with specified state
@@ -58,11 +60,25 @@ export function createStore<TState extends State>(
   options: StateCreatorOptions = {}
 ): UseStore<TState> {
   /**
-   * Internal, startup queue for computed and watched properties
-   * NOTE: is currently only used during store startup configuration
+   * During store startup configuration, we may need to capture
+   * initial state and notify store to allow side affects.
+   *
+   * NOTE: this initialization is for the STORE not for the hook usage...
+   *       !!store.reset() does NOT affect the sideaffects from initialization
    */
-  let initialized = false;
-  let initialState: any;
+  const initializer = {
+    state: null, // used for both initialization AND reset()
+    completed: false,
+    registerOnInit: (notifyMe: OnInitialized) => {
+      initializer.onInit = () => {
+        const unsubscribe = notifyMe();
+        initializer.onDestroy = !!unsubscribe && typeof unsubscribe === 'function' ? unsubscribe : NOOP;
+        initializer.completed = true;
+      };
+    },
+    onInit: NOOP, // call when initialization is done and ready to notify store
+    onDestroy: NOOP, // call to store is destroyed and cleanup from onReady() activity
+  };
 
   const computed: Record<string, (() => Unsubscribe) | (() => void)> = {};
 
@@ -166,7 +182,7 @@ export function createStore<TState extends State>(
         return () => subscription.unsubscribe();
       };
 
-      computed[it.name] = !initialized ? deferredSetup : deferredSetup();
+      computed[it.name] = !initializer.completed ? deferredSetup : deferredSetup();
     });
     return store;
   };
@@ -194,7 +210,7 @@ export function createStore<TState extends State>(
       }
     };
 
-    computed[property] = !initialized ? deferredSetup : deferredSetup();
+    computed[property] = !initializer.completed ? deferredSetup : deferredSetup();
 
     return store;
   };
@@ -217,10 +233,14 @@ export function createStore<TState extends State>(
       const unsubscribe = computed[propertyName] as Unsubscribe;
       unsubscribe();
     });
-    store.destroy();
+    store.destroy(); // release internal state and streams
+    initializer.onDestroy(); // enable store cleanup of custom side affects
   };
 
   /**
+   * Do not auto-destroy the store on hook/component dismount
+   * stores can be shared and persistent between mountings.
+   *
    * Reset() for two conditions:
    *
    * (1) Dismount - When component unmounts and the hook is released,
@@ -234,10 +254,10 @@ export function createStore<TState extends State>(
   const reset = (forced = false) => {
     // we need our computed values to recompute.
     resettable && store.reset();
-    recompute.next({ ...initialState });
+    recompute.next({ ...initializer.state });
 
     if (forced) {
-      const nextState = produce({}, () => ({ ...initialState }));
+      const nextState = produce({}, () => ({ ...initializer.state }));
       store._setState(nextState);
     }
   };
@@ -306,11 +326,9 @@ export function createStore<TState extends State>(
     useIsoLayoutEffect(() => {
       setSlice$(toObservable(selector));
 
-      // !important:
-      // Do not auto-destroy the store on hook/component dismount
-      // stores can be shared and persistent between mountings.
-
-      return () => reset();
+      return () => {
+        reset();
+      };
     }, [selector]);
 
     return slice;
@@ -318,28 +336,33 @@ export function createStore<TState extends State>(
 
   /**
    * Initialization of state management
-   * Create the immutable state using the 'createState()' callback factory
+   * Create the immutable state using the 'createState()' custom store
+   * factory function
    *
    * - Reinitialize the internal store,
    * - Register computed and watched properties
    * - inject storeAPI
    */
-  const onInit = () => {
-    const state = (initialState = produce({}, () => ({
-      ...{ error: null, isLoading: false },
-      ...createState({ ...storeAPI, ...hookAPI }),
-    })));
+  const initializeStore = () => {
+    initializer.state = produce({}, () => ({
+      ...{ error: null, isLoading: false }, // start with default error/loading state
+      ...createState(
+        { ...storeAPI, ...hookAPI }, // provide to custom store internal functions
+        { onInit: initializer.registerOnInit } // enable custom store to register for onInit notifications
+      ),
+    }));
 
-    reinitStore(store, name, state);
+    reinitStore(store, name, initializer.state);
     registerComputedProperties();
 
-    initialized = true;
+    // Notify store initialization is done and side affects are now allowed
+    initializer.onInit();
 
     // Decorate hook function with API methods, public custom hook/store
     return Object.assign(useStore, hookAPI);
   };
 
-  return onInit();
+  return initializeStore();
 }
 
 // *******************************************************

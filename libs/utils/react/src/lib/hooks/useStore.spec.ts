@@ -32,7 +32,7 @@ type EmailAndSaveFn = [EmailList, SaveEmailsFn, boolean];
 // ************************************
 
 describe('UseStore state management', () => {
-  describe('create()', () => {
+  describe('createStore()', () => {
     it('should create a store', () => {
       const useStore = createStore<EmailState>(({ set }) => ({
         emails: [],
@@ -170,6 +170,61 @@ describe('UseStore state management', () => {
     });
   });
 
+  describe('createStore() with onInit notifications', () => {
+    it('should notify initialization done', () => {
+      let notified = false;
+      const useStore = createStore<EmailState>(({ set }, { onInit }) => {
+        // side affect to run on initialization
+        onInit(() => {notified = true; }); // prettier-ignore
+
+        return {
+          emails: [],
+          saveEmails: (emails) => set({ emails }),
+        };
+      });
+
+      // initialization notification is synchronous
+      expect(notified).toBe(true);
+    });
+
+    it('should cleanup sideaffect during destroy', () => {
+      let notified = 0;
+      const useStore = createStore<EmailState>(({ set }, { onInit }) => {
+        onInit(() => {
+          notified = 1; // sideaffect
+          return () => (notified += 1); // should be called on `destory()`
+        });
+
+        return {
+          emails: [],
+          saveEmails: (emails) => set({ emails }),
+        };
+      });
+
+      expect(notified).toBe(1);
+      useStore.destroy();
+      expect(notified).toBe(2);
+    });
+
+    it('should not cleanup sideaffect during reset', () => {
+      let notified = 0;
+      const useStore = createStore<EmailState>(({ set }, { onInit }) => {
+        onInit(() => {
+          notified = 1; // sideaffect
+          return () => (notified += 1); // should not be called on `reset()`
+        });
+
+        return {
+          emails: [],
+          saveEmails: (emails) => set({ emails }),
+        };
+      });
+
+      expect(notified).toBe(1);
+      useStore.reset();
+      expect(notified).toBe(1);
+    });
+  });
   describe('creates a store hook `useStore`', () => {
     let useStore: UseStore<EmailState>;
 
