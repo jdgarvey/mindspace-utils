@@ -348,7 +348,7 @@ export function createStore<TState extends State>(
       ...{ error: null, isLoading: false }, // start with default error/loading state
       ...createState(
         { ...storeAPI, ...hookAPI }, // provide to custom store internal functions
-        { onInit: initializer.registerOnInit } // enable custom store to register for onInit notifications
+        initializer.registerOnInit // enable custom store to register for onInit notifications
       ),
     }));
 

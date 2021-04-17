@@ -173,7 +173,7 @@ describe('UseStore state management', () => {
   describe('createStore() with onInit notifications', () => {
     it('should notify initialization done', () => {
       let notified = false;
-      const useStore = createStore<EmailState>(({ set }, { onInit }) => {
+      const useStore = createStore<EmailState>(({ set }, onInit) => {
         // side affect to run on initialization
         onInit(() => {notified = true; }); // prettier-ignore
 
@@ -189,7 +189,7 @@ describe('UseStore state management', () => {
 
     it('should cleanup sideaffect during destroy', () => {
       let notified = 0;
-      const useStore = createStore<EmailState>(({ set }, { onInit }) => {
+      const useStore = createStore<EmailState>(({ set }, onInit) => {
         onInit(() => {
           notified = 1; // sideaffect
           return () => (notified += 1); // should be called on `destory()`
@@ -208,7 +208,7 @@ describe('UseStore state management', () => {
 
     it('should not cleanup sideaffect during reset', () => {
       let notified = 0;
-      const useStore = createStore<EmailState>(({ set }, { onInit }) => {
+      const useStore = createStore<EmailState>(({ set }, onInit) => {
         onInit(() => {
           notified = 1; // sideaffect
           return () => (notified += 1); // should not be called on `reset()`
