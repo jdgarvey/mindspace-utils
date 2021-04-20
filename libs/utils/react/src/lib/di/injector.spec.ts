@@ -235,6 +235,7 @@ function makeTestInjector(): [ DependencyInjector, InjectionToken<string> ] {
     { provide: C, useClass: C, deps:[A]},
     { provide: D, useClass: D, deps:[B, C]},
   ]);
+  
   return [injector, token];
 }
 

@@ -58,7 +58,7 @@ describe('EventBus', () => {
       expect(value).toBe(43);
     });
 
-    it('should subscribe to multiple events', () => {
+    it('should subscribe to multiple events using "on()"', () => {
       let count = 0;
       const trackCount = () => (count += 1);
       const unsubscribe1 = eventBus.on<number>(SESSION.STARTED, trackCount);
@@ -66,11 +66,90 @@ describe('EventBus', () => {
 
       eventBus.emit(createEvent(SESSION.STARTED, 43));
       eventBus.emit(createEvent(SESSION.STOPPED));
-
       expect(count).toBe(2);
 
       unsubscribe1();
       unsubscribe2();
+
+      eventBus.emit(createEvent(SESSION.STARTED, 43));
+      eventBus.emit(createEvent(SESSION.STOPPED));
+      expect(count).toBe(2);
+    });
+
+    it('should subscribe to multiple events using onMany()', () => {
+      let count = 0;
+      const trackCount = () => (count += 1);
+      const unsubscribe = eventBus.onMany({
+        [SESSION.STARTED]: trackCount,
+        [SESSION.STOPPED]: trackCount,
+      });
+
+      eventBus.emit(createEvent(SESSION.STARTED, 43));
+      eventBus.emit(createEvent(SESSION.STOPPED));
+      expect(count).toBe(2);
+
+      unsubscribe();
+
+      eventBus.emit(createEvent(SESSION.STARTED, 43));
+      eventBus.emit(createEvent(SESSION.STOPPED));
+      expect(count).toBe(2);
+    });
+
+    it('should subscribe to "most recent" past event for each type', () => {
+      let count = 0;
+      const trackCount = () => (count += 1);
+
+      // Fire event BEFORE subscription
+      eventBus.emit(createEvent(SESSION.STARTED, 43));
+
+      const unsubscribe = eventBus.on<number>(SESSION.STARTED, trackCount);
+      expect(count).toBe(1);
+
+      unsubscribe();
+
+      eventBus.emit(createEvent(SESSION.STARTED, 43));
+      expect(count).toBe(1);
+    });
+
+    it('should subscribe to "most recent" event only 1x', () => {
+      let recent: any;
+      const userChanged = 'userChanged';
+      const trackValue = (val) => (recent = val);
+
+      // Fire event BEFORE subscription
+      eventBus.emit(createEvent(userChanged, 'thomas burleson'));
+
+      const unsubscribe = eventBus.on<number>(userChanged, trackValue);
+      expect(recent).toBe('thomas burleson');
+
+      eventBus.emit(createEvent(userChanged, 'wes grimes'));
+      expect(recent).toBe('wes grimes');
+
+      unsubscribe();
+
+      eventBus.emit(createEvent(userChanged, 'jon rista'));
+      expect(recent).toBe('wes grimes');
+    });
+
+    it('should subscribe to "most recent" past events using onMany()', () => {
+      let count = 0;
+      const trackCount = () => (count += 1);
+
+      eventBus.emit(createEvent(SESSION.STARTED, 43));
+      eventBus.emit(createEvent(SESSION.STOPPED));
+
+      const unsubscribe = eventBus.onMany({
+        [SESSION.STARTED]: trackCount,
+        [SESSION.STOPPED]: trackCount,
+      });
+
+      expect(count).toBe(2);
+      unsubscribe();
+
+      eventBus.emit(createEvent(SESSION.STARTED, 43));
+      eventBus.emit(createEvent(SESSION.STOPPED));
+
+      expect(count).toBe(2);
     });
 
     it('should unsubscribe from future events', () => {
